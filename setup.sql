@@ -37,8 +37,3 @@ CREATE TABLE orders (
     days_since_prior_order FLOAT DEFAULT NULL
 );
 
--- Sample submission table for predictions (optional)
-CREATE TABLE sample_submission (
-    order_id INT PRIMARY KEY,
-    products TEXT NOT NULL
-);
