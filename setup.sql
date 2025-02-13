@@ -37,3 +37,13 @@ CREATE TABLE orders (
     days_since_prior_order FLOAT DEFAULT NULL
 );
 
+-- Table for order products (linking orders and products)
+CREATE TABLE order_products (
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    add_to_cart_order INT NOT NULL,
+    reordered TINYINT NOT NULL CHECK (reordered IN (0,1)),
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE
+);
