@@ -8,7 +8,7 @@ Optimization project. It supports two types of users:
   - Client users (store managers/analysts) can query insights such as popular
     products, sales trends, and aisle performance.
   - Admin users (regional managers) have additional options to update
-    inventory, add or remove products, etc.
+    past orders, add or remove products, etc.
 
 Each function below is a placeholder for the corresponding functionality.
 """
@@ -105,11 +105,11 @@ def query_popular_aisles(
     # TODO: Compute default date values if None and implement query execution.
     pass
 
-def update_stock_levels(
+def add_new_orders(
     conn: mysql.connector.MySQLConnection
 ) -> None:
     """
-    Admin functionality to update stock levels for products.
+    Admin functionality to add new orders to the database.
     
     Parameters:
         conn (mysql.connector.MySQLConnection): A connection object to the
@@ -118,7 +118,7 @@ def update_stock_levels(
     Returns:
         None.
     """
-    # TODO: Implement functionality to update stock levels in the database.
+    # TODO: Implement functionality to insert new orders into the database.
     pass
 
 def add_new_product(
@@ -190,7 +190,7 @@ def show_admin_options(
         None.
     """
     print("=== Admin Options ===")
-    print("1. Update Stock Levels")
+    print("1. Add New Orders")
     print("2. Add New Product")
     print("3. Delete Product")
     print("q. Quit")
