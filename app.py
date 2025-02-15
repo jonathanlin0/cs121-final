@@ -1,133 +1,248 @@
-#!/usr/bin/env python3
 """
-app.py: Command-line client application for the supermarket data analysis project.
+Supermarket Stock Optimization Application
+Student names: Jonathan Lin, Enoch Luk
+Student emails: jonathan@caltech.edu, eluk@caltech.edu
 
-This file contains function stubs and a basic menu-driven interface to interact with
-our SQL database. Actual database functionality will be implemented later.
+This is the command-line application interface for the Supermarket Stock
+Optimization project. It supports two types of users:
+  - Client users (store managers/analysts) can query insights such as popular
+    products, sales trends, and aisle performance.
+  - Admin users (regional managers) have additional options to update
+    inventory, add or remove products, etc.
+
+Each function below is a placeholder for the corresponding functionality.
 """
 
-from typing import Optional, Any
+import sys
+import mysql.connector
+import mysql.connector.errorcode as errorcode
+from typing import NoReturn, Optional, List
+import datetime  # For date manipulation in future implementations
 
-def get_conn() -> Optional[Any]:
+DEBUG: bool = True
+
+def get_conn() -> mysql.connector.MySQLConnection:
     """
-    Establishes and returns a connection to the SQL database.
+    Establish and return a connection to the MySQL database.
     
     Returns:
-        A connection object if successful, or None if the connection fails.
-    """
-    # TODO: Implement database connection using proper credentials and error handling.
-    return None
-
-def show_options() -> None:
-    """
-    Display the list of available options for the client user.
-    """
-    options = [
-        "1. View Most Popular Products in a Date Range",
-        "2. Track Sales Trends by Day of the Week in a Date Range",
-        "3. Find the Most Popular Aisles Based on Order Volume in a Date Range",
-        "4. Admin Login",
-        "5. Exit"
-    ]
-    print("\n=== Main Menu ===")
-    for option in options:
-        print(option)
-
-def view_popular_products(start_date: str, end_date: str, conn: Optional[Any]) -> None:
-    """
-    Query the database for the most popular products between start_date and end_date.
-
-    Parameters:
-        start_date (str): The starting date for the query in 'YYYY-MM-DD' format.
-        end_date (str): The ending date for the query in 'YYYY-MM-DD' format.
-        conn (Optional[Any]): A connection object to the database.
+        mysql.connector.MySQLConnection: A connection object if successful.
     
-    Expected behavior:
-        - Use the connection to execute the SQL query for popular products.
-        - Format and display the query results.
+    Raises:
+        Exits the program if the connection fails.
     """
-    # TODO: Implement SQL query execution and result display
+    # TODO: Implement actual connection logic using
+    # mysql.connector.connect(...)
     pass
 
-def track_sales_trends(start_date: str, end_date: str, conn: Optional[Any]) -> None:
+def query_popular_products(
+    conn: mysql.connector.MySQLConnection, 
+    start_date: Optional[str] = None, 
+    end_date: Optional[str] = None
+) -> None:
     """
-    Query the database to track sales trends by day of the week between start_date and end_date.
-
-    Parameters:
-        start_date (str): The starting date for the query in 'YYYY-MM-DD' format.
-        end_date (str): The ending date for the query in 'YYYY-MM-DD' format.
-        conn (Optional[Any]): A connection object to the database.
+    Query to identify the most popular products in a given date range.
     
-    Expected behavior:
-        - Use the connection to execute the SQL query to fetch sales trends.
-        - Format and display the query results.
+    Parameters:
+        conn (mysql.connector.MySQLConnection): A connection object to the
+            database.
+        start_date (Optional[str]): Start date in 'YYYY-MM-DD' format.
+            Defaults to one month ago if None.
+        end_date (Optional[str]): End date in 'YYYY-MM-DD' format.
+            Defaults to today if None.
+    
+    Returns:
+        None. Prints or returns the top products based on order counts.
     """
-    # TODO: Implement SQL query execution and result display
+    # TODO: If start_date or end_date is None, compute defaults for the past
+    # month. Then, implement query execution and processing of results.
     pass
 
-def find_popular_aisles(start_date: str, end_date: str, conn: Optional[Any]) -> None:
+def query_sales_trends(
+    conn: mysql.connector.MySQLConnection, 
+    start_date: Optional[str] = None, 
+    end_date: Optional[str] = None
+) -> List[str]:
     """
-    Query the database to find the most popular aisles based on order volume between start_date and end_date.
-
-    Parameters:
-        start_date (str): The starting date for the query in 'YYYY-MM-DD' format.
-        end_date (str): The ending date for the query in 'YYYY-MM-DD' format.
-        conn (Optional[Any]): A connection object to the database.
+    Query to retrieve a list of trending products in a given date range.
     
-    Expected behavior:
-        - Use the connection to execute the SQL query to retrieve aisle popularity.
-        - Format and display the query results.
+    Parameters:
+        conn (mysql.connector.MySQLConnection): A connection object to the
+            database.
+        start_date (Optional[str]): Start date in 'YYYY-MM-DD' format.
+            Defaults to one month ago if None.
+        end_date (Optional[str]): End date in 'YYYY-MM-DD' format.
+            Defaults to today if None.
+    
+    Returns:
+        List[str]: A list of product names that are trending within the
+            specified date range.
     """
-    # TODO: Implement SQL query execution and result display
+    # TODO: Compute default dates if start_date or end_date is None.
+    # Implement query logic to determine trending products.
+    # Return a list of trending product names.
+    return []
+
+def query_popular_aisles(
+    conn: mysql.connector.MySQLConnection, 
+    start_date: Optional[str] = None, 
+    end_date: Optional[str] = None
+) -> None:
+    """
+    Query to find the most popular aisles based on order volume in a date range.
+    
+    Parameters:
+        conn (mysql.connector.MySQLConnection): A connection object to the
+            database.
+        start_date (Optional[str]): Start date in 'YYYY-MM-DD' format.
+            Defaults to one month ago if None.
+        end_date (Optional[str]): End date in 'YYYY-MM-DD' format.
+            Defaults to today if None.
+    
+    Returns:
+        None. Prints or returns the most frequented aisles.
+    """
+    # TODO: Compute default date values if None and implement query execution.
     pass
 
-def admin_login() -> None:
+def update_stock_levels(
+    conn: mysql.connector.MySQLConnection
+) -> None:
     """
-    Admin login function to handle administrative tasks.
+    Admin functionality to update stock levels for products.
+    
+    Parameters:
+        conn (mysql.connector.MySQLConnection): A connection object to the
+            database.
+    
+    Returns:
+        None.
+    """
+    # TODO: Implement functionality to update stock levels in the database.
+    pass
 
-    Expected behavior:
-        - Prompt the admin for credentials.
-        - Validate the credentials against the database.
-        - Grant access to admin-specific functionality upon successful login.
+def add_new_product(
+    conn: mysql.connector.MySQLConnection
+) -> None:
     """
-    # TODO: Implement admin authentication and subsequent admin actions.
+    Admin functionality to add a new product to the inventory.
+    
+    Parameters:
+        conn (mysql.connector.MySQLConnection): A connection object to the
+            database.
+    
+    Returns:
+        None.
+    """
+    # TODO: Implement functionality to insert a new product into the database.
+    pass
+
+def delete_product(
+    conn: mysql.connector.MySQLConnection
+) -> None:
+    """
+    Admin functionality to delete a product from the inventory.
+    
+    Parameters:
+        conn (mysql.connector.MySQLConnection): A connection object to the
+            database.
+    
+    Returns:
+        None.
+    """
+    # TODO: Implement functionality to remove a product from the database.
+    pass
+
+def show_client_options(
+    conn: mysql.connector.MySQLConnection
+) -> None:
+    """
+    Display command-line options for client users and process input.
+    
+    Parameters:
+        conn (mysql.connector.MySQLConnection): A connection object to the
+            database.
+    
+    Returns:
+        None.
+    """
+    print("=== Client Options ===")
+    print("1. View Most Popular Products in a Date Range")
+    print("2. View Trending Products in a Date Range")
+    print("3. View Most Popular Aisles in a Date Range")
+    print("q. Quit")
+    
+    # TODO: Process user input, prompt for optional start and end dates,
+    # then call the corresponding query functions.
+    pass
+
+def show_admin_options(
+    conn: mysql.connector.MySQLConnection
+) -> None:
+    """
+    Display command-line options for admin users and process input.
+    
+    Parameters:
+        conn (mysql.connector.MySQLConnection): A connection object to the
+            database.
+    
+    Returns:
+        None.
+    """
+    print("=== Admin Options ===")
+    print("1. Update Stock Levels")
+    print("2. Add New Product")
+    print("3. Delete Product")
+    print("q. Quit")
+    
+    # TODO: Process user input and call the corresponding admin functions.
+    pass
+
+def login_admin() -> None:
+    """
+    Logs in for an admin.
+
+    Returns:
+        None.
+    """
+    # TODO: Logic for logging in an admin
+    pass
+
+def login_client() -> None:
+    """
+    Logs in for a client.
+
+    Returns:
+        None.
+    """
+    # TODO: Logic for logging in a client
     pass
 
 def main() -> None:
     """
-    Main function to run the command-line interface.
-
-    Expected flow:
-        - Establish a database connection.
-        - Display the main menu options.
-        - Prompt user for input.
-        - For options 1-3, prompt the user for a start and end date.
-        - Invoke the appropriate function based on user selection.
-        - Loop until the user chooses to exit.
+    Main function to initialize the application.
+    
+    Establishes the database connection, prompts the user to select their
+    role, and directs them to the appropriate menu.
+    
+    Returns:
+        None.
     """
-    conn: Optional[Any] = get_conn()  # Initialize the database connection once
-
-    while True:
-        show_options()
-        choice: str = input("Enter your choice: ").strip()
-
-        if choice in {"1", "2", "3"}:
-            start_date: str = input("Enter start date (YYYY-MM-DD): ").strip()
-            end_date: str = input("Enter end date (YYYY-MM-DD): ").strip()
-
-            if choice == "1":
-                view_popular_products(start_date, end_date, conn)
-            elif choice == "2":
-                track_sales_trends(start_date, end_date, conn)
-            elif choice == "3":
-                find_popular_aisles(start_date, end_date, conn)
-        elif choice == "4":
-            admin_login()
-        elif choice == "5":
-            print("Exiting program. Goodbye!")
-            break
-        else:
-            print("Invalid choice. Please try again.")
+    # Establish database connection
+    conn = get_conn()
+    
+    # Prompt user to select their role
+    role: str = input("Enter role (admin/client): ").strip().lower()
+    
+    if role == "admin":
+        login_admin()
+        show_admin_options(conn)
+    else:
+        login_client()
+        show_client_options(conn)
+    
+    # TODO: Add any additional cleanup or termination code if needed.
+    pass
 
 if __name__ == '__main__':
     main()
