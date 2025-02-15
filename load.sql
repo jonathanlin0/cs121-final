@@ -28,7 +28,7 @@ INTO TABLE orders
 FIELDS TERMINATED BY ',' ENCLOSED BY '"' 
 LINES TERMINATED BY '\n' 
 IGNORE 1 ROWS 
-(order_id, user_id, eval_set, order_number, order_dow, order_hour_of_day, days_since_prior_order);
+(order_id, user_id, customer_order_number, order_dow, order_hour_of_day, days_since_prior_order);
 
 -- Load data into order_products table
 LOAD DATA LOCAL INFILE 'data/order_products.csv' 

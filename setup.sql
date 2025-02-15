@@ -30,8 +30,9 @@ CREATE TABLE products (
 CREATE TABLE orders (
     order_id INT PRIMARY KEY,
     user_id INT NOT NULL,
-    eval_set ENUM('prior', 'train', 'test') NOT NULL,
-    order_number INT NOT NULL,
+    -- order number for a given customer. e.g., will be 1 if it's their first order, 
+    -- 2 for second, etc
+    customer_order_number INT NOT NULL,
     order_dow TINYINT NOT NULL CHECK (order_dow BETWEEN 0 AND 6),
     order_hour_of_day TINYINT NOT NULL CHECK (order_hour_of_day BETWEEN 0 AND 23),
     days_since_prior_order FLOAT DEFAULT NULL
