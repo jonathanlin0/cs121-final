@@ -10,7 +10,7 @@ print(df.shape)
 # Backup the original file
 df.to_csv(backup_path, index=False)
 
-# remove the last 100 rows
+# remove the last 400000 rows
 df_trimmed = df.iloc[:-400000]
 
 # Save the trimmed file back to the original location

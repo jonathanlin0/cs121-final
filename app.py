@@ -1,248 +1,181 @@
 """
-Supermarket Stock Optimization Application
-Student names: Jonathan Lin, Enoch Luk
-Student emails: jonathan@caltech.edu, eluk@caltech.edu
+Student Name(s): Jonathan Lin, Enoch Luk
+Student Email(s): jonathan@caltech.edu, eluk@caltech.edu
 
-This is the command-line application interface for the Supermarket Stock
-Optimization project. It supports two types of users:
-  - Client users (store managers/analysts) can query insights such as popular
-    products, sales trends, and aisle performance.
-  - Admin users (regional managers) have additional options to update
-    past orders, add or remove products, etc.
-
-Each function below is a placeholder for the corresponding functionality.
+High-Level Program Overview:
+This is a command-line interface skeleton for a supermarket
+database application. It provides functionalities for both client and
+admin users. Clients perform read-only queries while admins can add or
+update data.
 """
 
 import sys
 import mysql.connector
 import mysql.connector.errorcode as errorcode
-from typing import NoReturn, Optional, List
-import datetime  # For date manipulation in future implementations
+from typing import Any, Optional
 
-DEBUG: bool = True
-
-def get_conn() -> mysql.connector.MySQLConnection:
+def get_conn() -> mysql.connector.connection.MySQLConnection:
     """
-    Establish and return a connection to the MySQL database.
-    
+    Establishes and returns a MySQL database connection.
+
     Returns:
-        mysql.connector.MySQLConnection: A connection object if successful.
-    
-    Raises:
-        Exits the program if the connection fails.
+        A MySQLConnection object.
     """
-    # TODO: Implement actual connection logic using
-    # mysql.connector.connect(...)
+    # Implementation for database connection.
     pass
 
-def query_popular_products(
-    conn: mysql.connector.MySQLConnection, 
-    start_date: Optional[str] = None, 
-    end_date: Optional[str] = None
-) -> None:
+# ----------------------------------------------------------------------
+# Client Functions
+# ----------------------------------------------------------------------
+def client_query_popular_products(
+        conn: mysql.connector.connection.MySQLConnection) -> None:
     """
-    Query to identify the most popular products in a given date range.
-    
-    Parameters:
-        conn (mysql.connector.MySQLConnection): A connection object to the
-            database.
-        start_date (Optional[str]): Start date in 'YYYY-MM-DD' format.
-            Defaults to one month ago if None.
-        end_date (Optional[str]): End date in 'YYYY-MM-DD' format.
-            Defaults to today if None.
-    
-    Returns:
-        None. Prints or returns the top products based on order counts.
-    """
-    # TODO: If start_date or end_date is None, compute defaults for the past
-    # month. Then, implement query execution and processing of results.
-    pass
+    Queries and displays popular products based on order volume.
 
-def query_sales_trends(
-    conn: mysql.connector.MySQLConnection, 
-    start_date: Optional[str] = None, 
-    end_date: Optional[str] = None
-) -> List[str]:
-    """
-    Query to retrieve a list of trending products in a given date range.
-    
-    Parameters:
-        conn (mysql.connector.MySQLConnection): A connection object to the
-            database.
-        start_date (Optional[str]): Start date in 'YYYY-MM-DD' format.
-            Defaults to one month ago if None.
-        end_date (Optional[str]): End date in 'YYYY-MM-DD' format.
-            Defaults to today if None.
-    
-    Returns:
-        List[str]: A list of product names that are trending within the
-            specified date range.
-    """
-    # TODO: Compute default dates if start_date or end_date is None.
-    # Implement query logic to determine trending products.
-    # Return a list of trending product names.
-    return []
+    Args:
+        conn: A MySQLConnection object.
 
-def query_popular_aisles(
-    conn: mysql.connector.MySQLConnection, 
-    start_date: Optional[str] = None, 
-    end_date: Optional[str] = None
-) -> None:
-    """
-    Query to find the most popular aisles based on order volume in a date range.
-    
-    Parameters:
-        conn (mysql.connector.MySQLConnection): A connection object to the
-            database.
-        start_date (Optional[str]): Start date in 'YYYY-MM-DD' format.
-            Defaults to one month ago if None.
-        end_date (Optional[str]): End date in 'YYYY-MM-DD' format.
-            Defaults to today if None.
-    
-    Returns:
-        None. Prints or returns the most frequented aisles.
-    """
-    # TODO: Compute default date values if None and implement query execution.
-    pass
-
-def add_new_orders(
-    conn: mysql.connector.MySQLConnection
-) -> None:
-    """
-    Admin functionality to add new orders to the database.
-    
-    Parameters:
-        conn (mysql.connector.MySQLConnection): A connection object to the
-            database.
-    
     Returns:
         None.
     """
-    # TODO: Implement functionality to insert new orders into the database.
+    # Implementation to fetch and display top popular products.
     pass
 
-def add_new_product(
-    conn: mysql.connector.MySQLConnection
-) -> None:
+def client_query_popular_aisles(
+        conn: mysql.connector.connection.MySQLConnection) -> None:
     """
-    Admin functionality to add a new product to the inventory.
-    
-    Parameters:
-        conn (mysql.connector.MySQLConnection): A connection object to the
-            database.
-    
+    Queries and displays the most popular aisles based on order volume.
+
+    Args:
+        conn: A MySQLConnection object.
+
     Returns:
         None.
     """
-    # TODO: Implement functionality to insert a new product into the database.
+    # Implementation to fetch and display popular aisles.
     pass
 
-def delete_product(
-    conn: mysql.connector.MySQLConnection
-) -> None:
+def client_view_customer_order_history(
+        conn: mysql.connector.connection.MySQLConnection,
+        customer_id: int) -> None:
     """
-    Admin functionality to delete a product from the inventory.
-    
-    Parameters:
-        conn (mysql.connector.MySQLConnection): A connection object to the
-            database.
-    
+    Queries and displays the order history for a specific customer.
+
+    Args:
+        conn: A MySQLConnection object.
+        customer_id: The ID of the customer whose order history is to be
+                     displayed.
+
     Returns:
         None.
     """
-    # TODO: Implement functionality to remove a product from the database.
+    # Implementation to fetch and display order history for the customer.
     pass
 
-def show_client_options(
-    conn: mysql.connector.MySQLConnection
-) -> None:
+# ----------------------------------------------------------------------
+# Admin Functions
+# ----------------------------------------------------------------------
+def admin_add_new_order(
+        conn: mysql.connector.connection.MySQLConnection) -> None:
     """
-    Display command-line options for client users and process input.
-    
-    Parameters:
-        conn (mysql.connector.MySQLConnection): A connection object to the
-            database.
-    
+    Adds a new order to the database.
+
+    Args:
+        conn: A MySQLConnection object.
+
     Returns:
         None.
     """
-    print("=== Client Options ===")
-    print("1. View Most Popular Products in a Date Range")
-    print("2. View Trending Products in a Date Range")
-    print("3. View Most Popular Aisles in a Date Range")
-    print("q. Quit")
-    
-    # TODO: Process user input, prompt for optional start and end dates,
-    # then call the corresponding query functions.
+    # Implementation to add a new order.
     pass
 
-def show_admin_options(
-    conn: mysql.connector.MySQLConnection
-) -> None:
+def admin_update_product(
+        conn: mysql.connector.connection.MySQLConnection) -> None:
     """
-    Display command-line options for admin users and process input.
-    
-    Parameters:
-        conn (mysql.connector.MySQLConnection): A connection object to the
-            database.
-    
+    Updates product details, such as name, aisle, or department.
+
+    Args:
+        conn: A MySQLConnection object.
+
     Returns:
         None.
     """
-    print("=== Admin Options ===")
-    print("1. Add New Orders")
-    print("2. Add New Product")
-    print("3. Delete Product")
-    print("q. Quit")
-    
-    # TODO: Process user input and call the corresponding admin functions.
+    # Implementation to update product information.
     pass
 
+# ----------------------------------------------------------------------
+# Login Functions
+# ----------------------------------------------------------------------
 def login_admin() -> None:
     """
-    Logs in for an admin.
+    Logs in an admin.
 
     Returns:
         None.
     """
-    # TODO: Logic for logging in an admin
+    # Implementation for admin login.
     pass
 
 def login_client() -> None:
     """
-    Logs in for a client.
+    Logs in a client.
 
     Returns:
         None.
     """
-    # TODO: Logic for logging in a client
+    # Implementation for client login.
     pass
+
+# ----------------------------------------------------------------------
+# UI Functions
+# ----------------------------------------------------------------------
+def show_client_options() -> str:
+    """
+    Displays client options and returns the selected option.
+
+    Returns:
+        The user's selected option as a string.
+    """
+    print("\nClient Options:")
+    print("1 - Query popular products")
+    print("2 - Query popular aisles")
+    print("3 - View customer order history")
+    print("q - Quit")
+    return input("Enter an option: ").lower().strip()
+
+def show_admin_options() -> str:
+    """
+    Displays admin options and returns the selected option.
+
+    Returns:
+        The user's selected option as a string.
+    """
+    print("\nAdmin Options:")
+    print("1 - Add a new order")
+    print("2 - Update product details")
+    print("q - Quit")
+    return input("Enter an option: ").lower().strip()
+
+def quit_ui() -> None:
+    """
+    Exits the program after displaying a goodbye message.
+    """
+    print("Good bye!")
+    sys.exit(0)
 
 def main() -> None:
     """
-    Main function to initialize the application.
-    
-    Establishes the database connection, prompts the user to select their
-    role, and directs them to the appropriate menu.
-    
+    Initializes the database connection and displays a startup message.
+
     Returns:
         None.
     """
-    # Establish database connection
+    # Establish a database connection.
     conn = get_conn()
-    
-    # Prompt user to select their role
-    role: str = input("Enter role (admin/client): ").strip().lower()
-    
-    if role == "admin":
-        login_admin()
-        show_admin_options(conn)
-    else:
-        login_client()
-        show_client_options(conn)
-    
-    # TODO: Add any additional cleanup or termination code if needed.
-    pass
+
+    # Placeholder for future logic to prompt user actions.
+    print("Application initialized. "
+          "Add your program logic here.")
 
 if __name__ == '__main__':
     main()

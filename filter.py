@@ -4,16 +4,30 @@ import pandas as pd
 orders_file = "data/orders.csv"
 products_file = "data/products.csv"
 order_products_file = "data/order_products.csv"
-filtered_output_file = order_products_file  # Overwrite the same file
+aisles_file = "data/aisles.csv"
+departments_file = "data/departments.csv"
+filtered_output_file = order_products_file
 
 # load relevant datasets
 orders_df = pd.read_csv(orders_file)
-products_df = pd.read_csv(products_file, usecols=['product_id'])
+products_df = pd.read_csv(products_file)
+aisles_df = pd.read_csv(aisles_file)
+departments_df = pd.read_csv(departments_file)
 order_products_df = pd.read_csv(order_products_file)
 
 # remove 'eval_set' column if it exists (not relevant for our use case)
 if 'eval_set' in orders_df.columns:
     orders_df.drop(columns=['eval_set'], inplace=True)
+
+initial_rows = len(products_df)
+# ensure foreign key integrity for products.csv
+products_df = products_df[
+    products_df['aisle_id'].isin(aisles_df['aisle_id']) &
+    products_df['department_id'].isin(departments_df['department_id'])
+]
+curr_rows = len(products_df)
+print(f"Filtered out {initial_rows - curr_rows} rows in products.csv")
+
 
 # initial row count
 initial_rows = len(order_products_df)
