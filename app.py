@@ -33,7 +33,7 @@ def get_conn(user: str, password: str) -> Optional[mysql.connector.connection.My
             host="localhost",
             user=user,
             password=password,
-            database="final2"
+            database="final"
 
         )
         return conn
