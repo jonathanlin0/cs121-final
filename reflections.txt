@@ -1,0 +1,62 @@
+One of the main problems with our data was that it was a machine learning
+dataset from Kaggle. Machine learning focused datasets usually have lots of
+derived data so that the ML models can extract relationships between inputs
+rather than having to derive the values themselves. This is great when space and
+performance isn't a concern, however, the dataset is very large and we wish to
+reduce redundancy in line with database principles. Since a lot of this data (such as day of week,
+hour of week, etc) can be derived from more fundamental data types (TIMESTAMP),
+there's a lot of unnecessary data in the database.
+
+Thus, we removed some attributes, such as order day of week, order hour, is_reordered,
+customer_order_number (a unique number assigned to each order made by a
+customer, indicating the order in which they were placed), etc that can
+simply be derived from timestamp. This reduced space by a significant amount.
+
+However, timestamps weren't provided in this dataset, so we wrote a
+script that artificially generates timestamp values according to existing order
+day of week and order hour. Since year wasn't provided, we just let it start at
+January 1st, 2010. Then a random amount of noise is added to minutes and seconds
+for realism. We allow timestamps to be null for missing data purposes.
+Supermarkets are usually very behind, in terms of implementing technology.
+For example, Apple Pay was released in 2014, and general touch to pay technology
+was released even earlier. But Walmart has still has not implemented touch to
+pay technology, illustrating the inability for some supermarkets, even the large
+ones, to keep up with new technology. So it's reasonable to assume that some
+supermarkets may not have exact timestamps for every order placed, especially if
+they are still manually tracking orders with pen and paper.
+
+To add onto the realism, we also added a "store_id" concept. Previously, it was
+assumed that all these orders were related to a single store. But now, we added
+a store_id to each row in orders. We assume that there will never be more than
+10,000 stores for this chain, so we use TINYINT. We created the stores table
+(and stores.csv) to contain data about the locations of each store. This can
+possibly be used for optimizing logistics and shipping of groceries that go 
+bad quickly. But we assume that each store's ordering of aisles and distribution
+of products in each aisle is the same.
+
+We created new accounts on the python level:
+- alice (password is password) is an admin
+- bob (password is password) is a user.
+
+We also separated app.py into app_admin.py and app_client.py. We created the
+file db_utils.py for shared utility functions between app_admin.py and
+app_client.py. Then, we created users to be separate for the python and sql
+layer. For the sql layer, we just had the normal client and admin. For the
+python layer, it's assumed that each employee has their own login. Then,
+depending on if they're admin or client, they use the general admin or client
+user on the sql level, respectively. The account info for the employees are
+stored in the user_info table. The user_info was changed to have a flag is_admin
+to indicate whether they're an admin or not. We assume employee accounts are
+created in a separate process and that they already exists when an
+authorized employee wants to use the program.
+
+
+The new data can be found here:
+https://github.com/jonathanlin0/cs121-final/tree/main/data
+
+
+The data cleaning files can be found here
+https://github.com/jonathanlin0/cs121-final/tree/main/data_cleaning
+
+Note: these scripts may not work when rerun on the new data because they're
+meant to be run in a specific order and preexisting format.
