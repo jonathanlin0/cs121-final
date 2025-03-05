@@ -29,24 +29,30 @@ CREATE TABLE products (
         ON DELETE CASCADE
 );
 
+-- table for stores
+CREATE TABLE stores (
+    -- assume number of stores will never be above 10,000
+    store_id SMALLINT PRIMARY KEY,
+    -- assume that online orders are routed to the nearest store to the delivery location
+    -- and counts for that store's sales.
+    city VARCHAR(255) NOT NULL,
+    -- 2 letter state code
+    state CHAR(2) NOT NULL
+);
+
 -- table for orders
 CREATE TABLE orders (
     order_id INT PRIMARY KEY,
     user_id INT NOT NULL,
-    -- order number for a given customer. e.g., will be 1 if it's their first order, 
-    -- 2 for second, etc
-    customer_order_number INT NOT NULL,
-    order_dow TINYINT NOT NULL CHECK (order_dow BETWEEN 0 AND 6),
-    order_hour_of_day TINYINT NOT NULL CHECK (order_hour_of_day BETWEEN 0 AND 23),
-    order_timestamp TIMESTAMP DEFAULT NULL
+    order_timestamp TIMESTAMP DEFAULT NULL,
+    store_id SMALLINT NOT NULL,
+    FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
 
 -- table for relationship between orders and products
 CREATE TABLE order_items (
     order_id INT NOT NULL,
     product_id INT NOT NULL,
-    add_to_cart_order INT NOT NULL,
-    is_reordered TINYINT NOT NULL CHECK (is_reordered IN (0,1)),
     PRIMARY KEY (order_id, product_id),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) 
         ON DELETE CASCADE,
