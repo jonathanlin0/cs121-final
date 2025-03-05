@@ -1,5 +1,5 @@
 -- drop tables if they exist to reset the database
-DROP TABLE IF EXISTS order_products;
+DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS aisles;
@@ -38,15 +38,15 @@ CREATE TABLE orders (
     customer_order_number INT NOT NULL,
     order_dow TINYINT NOT NULL CHECK (order_dow BETWEEN 0 AND 6),
     order_hour_of_day TINYINT NOT NULL CHECK (order_hour_of_day BETWEEN 0 AND 23),
-    days_since_prior_order FLOAT DEFAULT NULL
+    order_timestamp TIMESTAMP DEFAULT NULL
 );
 
 -- table for relationship between orders and products
-CREATE TABLE order_products (
+CREATE TABLE order_items (
     order_id INT NOT NULL,
     product_id INT NOT NULL,
     add_to_cart_order INT NOT NULL,
-    reordered TINYINT NOT NULL CHECK (reordered IN (0,1)),
+    is_reordered TINYINT NOT NULL CHECK (is_reordered IN (0,1)),
     PRIMARY KEY (order_id, product_id),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) 
         ON DELETE CASCADE,
