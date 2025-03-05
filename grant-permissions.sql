@@ -8,11 +8,12 @@ CREATE USER 'appadmin'@'localhost' IDENTIFIED BY 'admin';
 -- Create client user with read-only privileges
 CREATE USER 'appclient'@'localhost' IDENTIFIED BY 'client';
 
--- Grant all privileges on the supermarketdb to the admin user
+-- Grant all privileges on the final to the admin user
 GRANT ALL PRIVILEGES ON final.* TO 'appadmin'@'localhost';
 
--- Grant only SELECT privileges on the supermarketdb to the client user
+
 GRANT SELECT ON final.* TO 'appclient'@'localhost';
+GRANT EXECUTE ON FUNCTION final.authenticate TO 'appclient'@'localhost';
 
 -- Ensure that the new privileges take effect immediately
 FLUSH PRIVILEGES;
