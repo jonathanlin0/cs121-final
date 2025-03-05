@@ -1,0 +1,13 @@
+- rename order_products to smt diff. delete card order, just make timestep per order
+- rename `reordered` to `is_reordered` (ended up deleting since this can be derived)
+- modify the data given to add our artificial time stamps, so then we can derive `add_to_card_order` (and other attributes) instead of having it built in. easier to maintain and scalable. more resistant to corrupt data
+- make order timestamp allow null (in case handwritten data doesn't have enough detail that includes timestamp)
+- chop out `reordered` since it can be derived
+- `days_since_prior_order` is also derived (so remove)
+- add store_id and stores concept
+- remove derived data (dow, hour of day)
+- break down app.py into app_client.py and app_admin.py
+- separate users on sql and python level
+
+Github repo:
+https://github.com/jonathanlin0/cs121-final
