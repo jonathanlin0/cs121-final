@@ -1,7 +1,7 @@
 -- Query: Top 10 Popular Products
 SELECT p.product_name, COUNT(*) AS total_orders
 FROM orders o
-JOIN order_items oi ON o.order_id = oi.order_id
+JOIN order_products oi ON o.order_id = oi.order_id
 JOIN products p ON oi.product_id = p.product_id
 GROUP BY p.product_id, p.product_name
 ORDER BY total_orders DESC
@@ -10,7 +10,7 @@ LIMIT 10;
 -- Query: Top 10 Popular Aisles
 SELECT a.aisle, COUNT(*) AS order_count
 FROM orders o
-JOIN order_items oi ON o.order_id = oi.order_id
+JOIN order_products oi ON o.order_id = oi.order_id
 JOIN products p ON oi.product_id = p.product_id
 JOIN aisles a ON p.aisle_id = a.aisle_id
 GROUP BY a.aisle
@@ -21,7 +21,7 @@ LIMIT 10;
 -- Query: Customer Order History
 SELECT o.order_id, o.order_timestamp, p.product_name
 FROM orders o
-JOIN order_items oi ON o.order_id = oi.order_id
+JOIN order_products oi ON o.order_id = oi.order_id
 JOIN products p ON oi.product_id = p.product_id
 WHERE o.user_id = 7;
 

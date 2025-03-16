@@ -39,9 +39,9 @@ IGNORE 1 ROWS
 (order_id, user_id, @order_timestamp, store_id)
 SET order_timestamp = NULLIF(@order_timestamp, '');
 
--- Load data into order_items table
-LOAD DATA LOCAL INFILE 'data/order_items.csv' 
-INTO TABLE order_items
+-- Load data into order_products table
+LOAD DATA LOCAL INFILE 'data/order_products.csv' 
+INTO TABLE order_products
 FIELDS TERMINATED BY ',' ENCLOSED BY '"' 
 LINES TERMINATED BY '\n' 
 IGNORE 1 ROWS 
