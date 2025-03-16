@@ -28,7 +28,7 @@ def authenticate_user(conn, username: str, password: str):
         is_admin: True if the user is marked as admin.
     """
     cursor = conn.cursor()
-    query = "SELECT authenticate(%s, %s), is_admin FROM user_info WHERE username = %s"
+    query = "SELECT authenticate(%s, %s), is_admin FROM users_info WHERE username = %s"
     cursor.execute(query, (username, password, username))
     row = cursor.fetchone()
     cursor.close()

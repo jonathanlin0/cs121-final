@@ -29,7 +29,7 @@ DELIMITER ;
 -- You may extend that table to include an is_admin or role attribute if you
 -- have admin or other roles for users in your application
 -- (e.g. store managers, data managers, etc.)
-CREATE TABLE user_info (
+CREATE TABLE users_info (
     -- Usernames are up to 20 characters.
     username VARCHAR(20) PRIMARY KEY,
 
@@ -49,7 +49,7 @@ CREATE TABLE user_info (
 );
 
 -- [Problem 1a]
--- Adds a new user to the user_info table, using the specified password (max
+-- Adds a new user to the users_info table, using the specified password (max
 -- of 20 characters). Salts the password with a newly-generated salt value,
 -- and then the salt and hash values are both stored in the table.
 DELIMITER !
@@ -64,14 +64,14 @@ BEGIN
     SET new_salt = make_salt(8);
     
     -- Insert the new user info record.
-    INSERT INTO user_info(username, salt, password_hash, is_admin)
+    INSERT INTO users_info(username, salt, password_hash, is_admin)
     VALUES(new_username, new_salt, SHA2(CONCAT(new_salt, password), 256), is_admin);
 END !
 DELIMITER ;
 
 -- [Problem 1b]
 -- Authenticates the specified username and password against the data
--- in the user_info table.  Returns 1 if the user appears in the table, and the
+-- in the users_info table.  Returns 1 if the user appears in the table, and the
 -- specified password hashes to the value for the user. Otherwise returns 0.
 DELIMITER !
 CREATE FUNCTION authenticate(username VARCHAR(20), password VARCHAR(20))
@@ -88,8 +88,8 @@ BEGIN
     -- Retrieve the salt and hash for the provided username.
     SELECT salt, password_hash
         INTO stored_salt, stored_hash
-        FROM user_info
-        WHERE user_info.username = username
+        FROM users_info
+        WHERE users_info.username = username
         LIMIT 1;
       
     -- If a row was found, check if the hashed (salt+password) equals the stored hash.
@@ -106,23 +106,23 @@ END !
 DELIMITER ;
 
 -- [Problem 1c]
--- Add at least two users into your user_info table so that when we run this file,
+-- Add at least two users into your users_info table so that when we run this file,
 -- we will have examples users in the database.
 CALL sp_add_user('alice', 'password', TRUE);
 CALL sp_add_user('bob', 'password', FALSE);
 
 -- [Problem 1d]
--- Create a procedure sp_change_password to generate a new salt and change the given
+-- Create a procedure sp_change_pw to generate a new salt and change the given
 -- user's password to the given password (after salting and hashing)
 DELIMITER !
-CREATE PROCEDURE sp_change_password(IN p_username VARCHAR(20), IN p_new_password VARCHAR(20))
+CREATE PROCEDURE sp_change_pw(IN p_username VARCHAR(20), IN p_new_password VARCHAR(20))
 BEGIN
     -- Generate a new 8-character salt
     DECLARE new_salt CHAR(8);
     SET new_salt = make_salt(8);
     
-    -- Update the user_info table with the new salt and hashed new password.
-    UPDATE user_info
+    -- Update the users_info table with the new salt and hashed new password.
+    UPDATE users_info
     SET salt = new_salt,
         password_hash = SHA2(CONCAT(new_salt, p_new_password), 256)
     WHERE username = p_username;
