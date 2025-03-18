@@ -1,5 +1,5 @@
 -- drop tables if they exist to reset the database
-DROP TABLE IF EXISTS order_products;
+DROP TABLE IF EXISTS products_in_order;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS aisles;
@@ -40,7 +40,7 @@ CREATE TABLE stores (
 
 -- table for orders
 CREATE TABLE orders (
-    order_id INT PRIMARY KEY,
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     order_timestamp TIMESTAMP DEFAULT NULL,
     store_id SMALLINT NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE orders (
 );
 
 -- table for relationship between orders and products
-CREATE TABLE order_products (
+CREATE TABLE products_in_order (
     order_id INT,
     product_id INT,
     PRIMARY KEY (order_id, product_id),

@@ -36,7 +36,7 @@ timestamps = []
 # with the hour taken from the order_hour_of_day field.
 first_row = orders.iloc[0]
 target_hour_first = int(first_row['order_hour_of_day'])
-base = datetime(2010, 1, 1).replace(hour=target_hour_first, minute=0, second=0, microsecond=0)
+base = datetime(2005, 1, 1).replace(hour=target_hour_first, minute=0, second=0, microsecond=0)
 # Add a bit of random noise (minutes and seconds) for realism.
 noise_minutes = np.random.randint(0, 60)
 noise_seconds = np.random.randint(0, 60)

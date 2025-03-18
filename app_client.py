@@ -6,11 +6,11 @@ from db_utils import get_conn, authenticate_user
 def client_query_popular_products(conn):
     cursor = conn.cursor()
     query = """
-        SELECT p.product_name, COUNT(*) AS total_orders
+        SELECT product_name, COUNT(*) AS total_orders
         FROM orders o
-        JOIN order_products oi ON o.order_id = oi.order_id
-        JOIN products p ON oi.product_id = p.product_id
-        GROUP BY p.product_id, p.product_name
+        NATURAL JOIN products_in_order
+        NATURAL JOIN products
+        GROUP BY product_id, product_name
         ORDER BY total_orders DESC
         LIMIT 10;
     """
@@ -25,12 +25,12 @@ def client_query_popular_products(conn):
 def client_query_popular_aisles(conn):
     cursor = conn.cursor()
     query = """
-        SELECT a.aisle, COUNT(*) AS order_count
+        SELECT aisle, COUNT(*) AS order_count
         FROM orders o
-        JOIN order_products oi ON o.order_id = oi.order_id
-        JOIN products p ON oi.product_id = p.product_id
-        JOIN aisles a ON p.aisle_id = a.aisle_id
-        GROUP BY a.aisle
+        NATURAL JOIN products_in_order
+        NATURAL JOIN products
+        NATURAL JOIN aisles
+        GROUP BY aisle
         ORDER BY order_count DESC
         LIMIT 10;
     """
@@ -51,11 +51,11 @@ def client_view_customer_order_history(conn):
 
     cursor = conn.cursor()
     query = """
-        SELECT o.order_id, o.order_timestamp, p.product_name
-        FROM orders o
-        JOIN order_products oi ON o.order_id = oi.order_id
-        JOIN products p ON oi.product_id = p.product_id
-        WHERE o.user_id = %s;
+        SELECT order_id, order_timestamp, product_name
+        FROM orders
+        NATURAL JOIN products_in_order
+        NATURAL JOIN products
+        WHERE user_id = %s;
     """
     cursor.execute(query, (customer_id,))
     results = cursor.fetchall()

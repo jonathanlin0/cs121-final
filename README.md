@@ -60,7 +60,7 @@ Client users can:
 2. The system prompts for login credentials.
 3. Upon successful authentication:
    - **Clients** can query supermarket sales data.
-   - **Admins** can manage inventory.
+   - **Admins** can modify product names and add new order data
 4. The user selects an option from the menu and interacts accordingly.
 5. The user can continue interacting or exit the system.
 

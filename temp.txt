@@ -20,7 +20,7 @@ p_order_hour_of_day TINYINT, p_days_since_prior_order FLOAT,
 p_product_ids TEXT)
   This procedure creates a new order by inserting a record into the 
   orders table and then, based on a provided comma‐separated list of 
-  product IDs, it inserts corresponding entries into the order_products 
+  product IDs, it inserts corresponding entries into the products_in_order 
   table. It is best implemented as a procedure because it encapsulates 
   multiple, interdependent DML operations (inserting into two tables and 
   iterating over a list of products) into one transactional unit, thereby 
@@ -31,9 +31,9 @@ p_product_ids TEXT)
 
 
 Triggers: trg_update_aisle_stats row-based AFTER INSERT trigger on 
-the order_products table
+the products_in_order table
   This trigger is defined to fire AFTER an INSERT operation on the 
-  order_products table. For each new row inserted, the trigger 
+  products_in_order table. For each new row inserted, the trigger 
   retrieves the associated aisle_id from the products table (via 
   the product_id in the new row) and then updates the materialized 
   view "aisle stats" - for example, by incrementing the count of 
