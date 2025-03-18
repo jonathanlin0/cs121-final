@@ -9,10 +9,10 @@ Before running the application, ensure you have the following:
 - **MySQL Server**
 - **Required Python Packages**: Install dependencies using:
   ```bash
-  pip install -r requirements.txt
+  pip3 install -r requirements.txt
   ```
 - **Dataset**: The data, which has been precleaned (from original Kaggle format)
-  is in csv format in the data folder. No further data cleaning will be necessary
+  is in csv format in the `data/` folder. No further data cleaning will be necessary
 
 
 Since we are using CSV files for data import, enter MySQL with:
@@ -23,14 +23,15 @@ sudo mysql --local-infile=1
 ## Database Setup
 To set up the database, run the following SQL commands in order:
 ```sql
-drop database if exists final;
-create database final;
+DROP DATABASE IF EXISTS final;
+CREATE DATABASE final;
 use final;
 source setup.sql;
 source load-data.sql;
 source setup-passwords.sql;
 source grant-permissions.sql;
-source setup-routines.sql
+source setup-routines.sql;
+source queries.sql;
 ```
 
 
@@ -38,17 +39,16 @@ source setup-routines.sql
 ### Admin Interface
 To start the admin application, run:
 ```bash
-python app_admin.py
+python3 app_admin.py
 ```
 Admin users can:
 - Add new orders
 - Add new products
-- Delete old products
 
 ### Client Interface
 To start the client application, run:
 ```bash
-python app_client.py
+python3 app_client.py
 ```
 Client users can:
 - Query popular products
@@ -68,6 +68,3 @@ Client users can:
 - Clients have **read-only** access.
 - Admins have **full control** over inventory and product modifications.
 - Authentication is enforced before accessing any features.
-
-
-
