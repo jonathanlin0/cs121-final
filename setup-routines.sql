@@ -2,9 +2,9 @@
 DROP FUNCTION IF EXISTS avg_order_interval;
 DROP PROCEDURE IF EXISTS add_product;
 DROP PROCEDURE IF EXISTS sp_create_order;
-DROP TRIGGER IF EXISTS trg_update_aisle_stats;
+DROP TRIGGER IF EXISTS trg_after_insert_products_in_order;
 
-DELIMITER //
+DELIMITER !
 
 -- --------------------------------------------------------
 -- UDF: avg_order_interval
@@ -27,7 +27,7 @@ BEGIN
     WHERE o1.user_id = user_id;
     
     RETURN COALESCE(avg_days, 0);
-END //
+END !
 
 -- --------------------------------------------------------
 -- Procedure: add_product
@@ -52,7 +52,7 @@ BEGIN
         INSERT INTO products (product_name, aisle_id, department_id)
         VALUES (product_name, aisle_id, department_id);
     END IF;
-END //
+END !
 
 -- --------------------------------------------------------
 -- Procedure: sp_create_order
@@ -99,51 +99,62 @@ BEGIN
   
   -- Return the new order ID
   SELECT new_order_id AS order_id;
-END //
+END !
+DELIMITER ;
 
 -- --------------------------------------------------------
--- Trigger: trg_update_aisle_stats
+-- Trigger: trg_products_in_order_after_insert
 -- This row-level AFTER INSERT trigger fires on the products_in_order table.
--- For each new record inserted, it retrieves the associated aisle_id from the
--- products table and updates the materialized view (assumed to be a table named aisle_stats)
--- by incrementing the count of products sold for that aisle.
+-- For each new record inserted, it updates the respective value
+-- did_reorder.
 -- --------------------------------------------------------
 
---for demonstration
-CREATE TABLE IF NOT EXISTS aisle_stats (
-    aisle_id INT PRIMARY KEY,
-    products_sold INT DEFAULT 0
+-- Create the did_reorder table only if it doesn't already exist.
+CREATE TABLE IF NOT EXISTS did_reorder (
+    user_id INT,
+    product_id INT,
+    is_reordered TINYINT,
+    PRIMARY KEY (user_id, product_id)
 );
 
 
-CREATE TRIGGER trg_update_aisle_stats
+-- Drop the trigger if it exists to avoid errors during creation.
+DROP TRIGGER IF EXISTS trg_after_insert_products_in_order;
+
+DELIMITER !
+
+CREATE TRIGGER trg_after_insert_products_in_order
 AFTER INSERT ON products_in_order
 FOR EACH ROW
 BEGIN
-  DECLARE v_aisle_id INT;
-  DECLARE cnt INT;
-  
-  -- Get the aisle_id for the inserted product.
-  SELECT aisle_id INTO v_aisle_id
-  FROM products
-  WHERE product_id = NEW.product_id;
-  
-  -- Check if the aisle already exists in aisle_stats.
-  SELECT COUNT(*) INTO cnt
-  FROM aisle_stats
-  WHERE aisle_id = v_aisle_id;
-  
-  IF cnt > 0 THEN
-    -- Increment the products_sold count for this aisle.
-    UPDATE aisle_stats
-    SET products_sold = products_sold + 1
-    WHERE aisle_id = v_aisle_id;
-  ELSE
-    -- Insert a new record for this aisle.
-    INSERT INTO aisle_stats (aisle_id, products_sold)
-    VALUES (v_aisle_id, 1);
-  END IF;
-  
-END //
-
+    DECLARE v_user_id INT DEFAULT 0;
+    DECLARE v_count INT DEFAULT 0;
+    
+    -- Retrieve the user_id from the orders table for the inserted order.
+    SELECT user_id 
+      INTO v_user_id
+      FROM orders
+     WHERE order_id = NEW.order_id
+     LIMIT 1;
+    
+    -- Check if a did_reorder record already exists for this user and product.
+    SELECT COUNT(*) 
+      INTO v_count
+      FROM did_reorder
+     WHERE user_id = v_user_id 
+       AND product_id = NEW.product_id;
+    
+    IF v_count > 0 THEN
+        -- If the record exists, update is_reordered to 1.
+        UPDATE did_reorder
+           SET is_reordered = 1
+         WHERE user_id = v_user_id 
+           AND product_id = NEW.product_id;
+    ELSE
+        -- Otherwise, insert a new record with is_reordered set to 0.
+        INSERT INTO did_reorder (user_id, product_id, is_reordered)
+        VALUES (v_user_id, NEW.product_id, 0);
+    END IF;
+END!
+ 
 DELIMITER ;
