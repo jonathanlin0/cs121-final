@@ -1,6 +1,4 @@
--- CS 121 24wi: Password Management (A6 and Final Project)
-
--- (Provided) This function generates a specified number of characters for using as a
+-- This function generates a specified number of characters for using as a
 -- salt in passwords.
 DELIMITER !
 CREATE FUNCTION make_salt(num_chars INT)
@@ -22,7 +20,6 @@ BEGIN
 END !
 DELIMITER ;
 
--- Provided (you may modify in your FP if you choose)
 -- This table holds information for authenticating users based on
 -- a password.  Passwords are not stored plaintext so that they
 -- cannot be used by people that shouldn't have them.
@@ -48,7 +45,6 @@ CREATE TABLE user_info (
     is_admin BOOLEAN NOT NULL DEFAULT False
 );
 
--- [Problem 1a]
 -- Adds a new user to the user_info table, using the specified password (max
 -- of 20 characters). Salts the password with a newly-generated salt value,
 -- and then the salt and hash values are both stored in the table.
@@ -69,7 +65,6 @@ BEGIN
 END !
 DELIMITER ;
 
--- [Problem 1b]
 -- Authenticates the specified username and password against the data
 -- in the user_info table.  Returns 1 if the user appears in the table, and the
 -- specified password hashes to the value for the user. Otherwise returns 0.
@@ -105,13 +100,11 @@ BEGIN
 END !
 DELIMITER ;
 
--- [Problem 1c]
 -- Add at least two users into your user_info table so that when we run this file,
 -- we will have examples users in the database.
 CALL sp_add_user('alice', 'password', TRUE);
 CALL sp_add_user('bob', 'password', FALSE);
 
--- [Problem 1d]
 -- Create a procedure sp_change_password to generate a new salt and change the given
 -- user's password to the given password (after salting and hashing)
 DELIMITER !
