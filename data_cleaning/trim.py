@@ -13,8 +13,8 @@ print("Original orders shape:", df_orders.shape)
 # Backup the original orders file
 df_orders.to_csv(backup_path_orders, index=False)
 
-# Filter out rows where user_id > 200
-df_orders_filtered = df_orders[df_orders['user_id'] <= 5000]
+# Filter out rows where user_id > 7000
+df_orders_filtered = df_orders[df_orders['user_id'] <= 7000]
 print("Filtered orders shape:", df_orders_filtered.shape)
 
 # Save the filtered orders file
