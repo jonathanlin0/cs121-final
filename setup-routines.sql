@@ -1,105 +1,78 @@
 -- Drop existing UDF, procedures, and triggers if they exist
-DROP FUNCTION IF EXISTS avg_order_interval;
-DROP PROCEDURE IF EXISTS add_product;
-DROP PROCEDURE IF EXISTS sp_create_order;
+DROP FUNCTION IF EXISTS store_efficiency;
+DROP PROCEDURE IF EXISTS reassign_order_store;
 DROP TRIGGER IF EXISTS trg_after_insert_products_in_order;
 
-DELIMITER !
+
 
 -- --------------------------------------------------------
 -- UDF: avg_order_interval
--- This user-defined function calculates the average number of days 
--- between consecutive orders placed by a specific user.
--- It returns the average time interval (in days) between orders.
--- If a user has only one order, it returns 0.
+-- This UDF calculates the supplier efficiency of a given store.
+-- This is calculated by the total number of products sold
+-- in a given store whose supplier is in the same city as
+-- the city divided by the total number of products sold at
+-- that same store
 -- --------------------------------------------------------
+DELIMITER !
 
-CREATE FUNCTION avg_order_interval(user_id INT) 
-RETURNS INT DETERMINISTIC
+CREATE FUNCTION store_efficiency(p_store_id SMALLINT)
+RETURNS DECIMAL(5,2)
+DETERMINISTIC
 BEGIN
-    DECLARE avg_days INT;
-    
-    -- Calculate the average difference (in days) between consecutive orders
-    SELECT AVG(DATEDIFF(o2.order_timestamp, o1.order_timestamp)) INTO avg_days
-    FROM orders o1
-    JOIN orders o2 ON o1.user_id = o2.user_id 
-        AND o2.order_timestamp > o1.order_timestamp
-    WHERE o1.user_id = user_id;
-    
-    RETURN COALESCE(avg_days, 0);
-END !
+    DECLARE totalItems INT;
+    DECLARE efficientItems INT;
+    DECLARE storeCity VARCHAR(255);
+    DECLARE efficiencyRate DECIMAL(5,2);
 
--- --------------------------------------------------------
--- Procedure: add_product
--- This stored procedure adds a new product to the database.
--- If a product with the same name already exists, it does not insert a duplicate.
--- The procedure takes three parameters:
---  - product_name: The name of the product to add.
---  - aisle_id: The aisle in which the product is located.
---  - department_id: The department associated with the product.
--- --------------------------------------------------------'
+    -- Get the city for the given store
+    SELECT city INTO storeCity
+    FROM stores
+    WHERE store_id = p_store_id;
 
-CREATE PROCEDURE add_product(
-    IN product_name VARCHAR(255), 
-    IN aisle_id INT, 
-    IN department_id INT
-)
-BEGIN
-    -- Check if product already exists
-    IF NOT EXISTS (
-        SELECT 1 FROM products WHERE products.product_name = product_name
-    ) THEN
-        INSERT INTO products (product_name, aisle_id, department_id)
-        VALUES (product_name, aisle_id, department_id);
-    END IF;
-END !
+    -- Count total items for orders belonging to this store
+    SELECT COUNT(*) INTO totalItems
+    FROM products_in_order p
+    JOIN orders o ON p.order_id = o.order_id
+    WHERE o.store_id = p_store_id;
 
--- --------------------------------------------------------
--- Procedure: sp_create_order
--- This procedure creates a new order by inserting a record into the
--- orders table and then, based on a comma-separated list of product IDs,
--- inserts corresponding entries into the products_in_order table.
--- The add_to_cart_order is incremented in the order the product IDs appear.
--- --------------------------------------------------------
-
-CREATE PROCEDURE sp_create_order(
-  IN p_user_id INT,
-  IN p_store_id SMALLINT,
-  IN p_order_timestamp TIMESTAMP,
-  IN p_product_ids TEXT
-)
-BEGIN
-  DECLARE new_order_id INT;
-  DECLARE product_id_str VARCHAR(255);
-  DECLARE comma_pos INT;
-
-  -- Insert a new order record
-  INSERT INTO orders (user_id, order_timestamp, store_id)
-  VALUES (p_user_id, p_order_timestamp, p_store_id);
-
-  -- Get the ID of the newly inserted order
-  SET new_order_id = LAST_INSERT_ID();
-  
-  -- Loop over the comma-separated list of product IDs
-  WHILE CHAR_LENGTH(p_product_ids) > 0 DO
-    SET comma_pos = LOCATE(',', p_product_ids);
-    IF comma_pos > 0 THEN
-      SET product_id_str = SUBSTRING(p_product_ids, 1, comma_pos - 1);
-      SET p_product_ids = SUBSTRING(p_product_ids, comma_pos + 1);
+    IF totalItems = 0 THEN
+        SET efficiencyRate = 1.0;
     ELSE
-      SET product_id_str = p_product_ids;
-      SET p_product_ids = '';
+        -- Count items where the supplier's city matches the store's city
+        SELECT COUNT(*) INTO efficientItems
+        FROM products_in_order p
+        JOIN orders o ON p.order_id = o.order_id
+        JOIN suppliers sup ON p.supplier_id = sup.supplier_id
+        WHERE o.store_id = p_store_id
+          AND sup.city = storeCity;
+
+        SET efficiencyRate = efficientItems / totalItems;
     END IF;
-    
-    -- Insert product into the order
-    INSERT INTO products_in_order (order_id, product_id)
-    VALUES (new_order_id, CAST(product_id_str AS UNSIGNED));
-    
-  END WHILE;
-  
-  -- Return the new order ID
-  SELECT new_order_id AS order_id;
+
+    RETURN efficiencyRate;
 END !
+
+DELIMITER ;
+
+
+
+-- --------------------------------------------------------
+-- Procedure: reassign_order_store
+-- This procedure reassigns the store for a given order.
+-- --------------------------------------------------------
+
+DELIMITER !
+
+CREATE PROCEDURE reassign_order_store (
+    IN p_order_id INT,
+    IN p_new_store_id SMALLINT
+)
+BEGIN
+    UPDATE orders
+    SET store_id = p_new_store_id
+    WHERE order_id = p_order_id;
+END !
+
 DELIMITER ;
 
 -- --------------------------------------------------------

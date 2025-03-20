@@ -1,35 +1,36 @@
--- Query: Top 10 Popular Products
-SELECT p.product_name, COUNT(*) AS total_orders
-FROM orders o
-JOIN products_in_order oi ON o.order_id = oi.order_id
-JOIN products p ON oi.product_id = p.product_id
-GROUP BY p.product_id, p.product_name
-ORDER BY total_orders DESC
-LIMIT 10;
-
--- Query: Top 10 Popular Aisles
-SELECT a.aisle, COUNT(*) AS order_count
-FROM orders o
-JOIN products_in_order oi ON o.order_id = oi.order_id
-JOIN products p ON oi.product_id = p.product_id
-JOIN aisles a ON p.aisle_id = a.aisle_id
-GROUP BY a.aisle
-ORDER BY order_count DESC
-LIMIT 10;
+-- Query: Calculate the efficiency of every store
+SELECT 
+    s.store_id, 
+    s.city, 
+    store_efficiency(s.store_id) AS supplier_efficiency, 
+    (
+        SELECT COUNT(*) 
+        FROM products_in_order p
+        JOIN orders o ON p.order_id = o.order_id
+        WHERE o.store_id = s.store_id
+    ) AS num_purchased_products
+FROM stores s
+ORDER BY supplier_efficiency DESC, num_purchased_products DESC;
 
 
--- Query: Customer Order History
-SELECT o.order_id, o.order_timestamp, p.product_name
-FROM orders o
-JOIN products_in_order oi ON o.order_id = oi.order_id
-JOIN products p ON oi.product_id = p.product_id
-WHERE o.user_id = 7;
 
--- Query: Insert a New Order
-INSERT INTO orders (order_id, user_id, order_timestamp, store_id) 
-VALUES (12345, '7', NOW(), '2');
 
--- Query: Update a Product Name
-UPDATE products 
-SET product_name = 'Lego Monkey' 
-WHERE product_id = '3423';
+-- Query: Reassign order 482516 to store 1
+CALL reassign_order_store(482516, 1);
+
+
+-- -- Query: Customer Order History
+-- SELECT o.order_id, o.order_timestamp, p.product_name
+-- FROM orders o
+-- JOIN products_in_order oi ON o.order_id = oi.order_id
+-- JOIN products p ON oi.product_id = p.product_id
+-- WHERE o.user_id = 7;
+
+-- -- Query: Insert a New Order
+-- INSERT INTO orders (order_id, user_id, order_timestamp, store_id) 
+-- VALUES (12345, '7', NOW(), '2');
+
+-- -- Query: Update a Product Name
+-- UPDATE products 
+-- SET product_name = 'Lego Monkey' 
+-- WHERE product_id = '3423';

@@ -57,5 +57,5 @@ for _, row in products_in_order.iterrows():
 products_in_order['supplier_id'] = supplier_ids
 
 # Step 5: Save the updated products_in_order DataFrame to a new CSV file.
-products_in_order.to_csv('data/products_in_order_with_suppliers.csv', index=False)
-print("Updated products_in_order.csv saved as 'data/products_in_order_with_suppliers.csv'.")
+products_in_order.to_csv('data/products_in_order.csv', index=False)
+print("Updated products_in_order.csv saved as 'data/products_in_order.csv'.")
