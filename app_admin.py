@@ -10,8 +10,41 @@ def admin_add_new_order(conn):
     cursor = conn.cursor()
     try:
         # Get basic order information and insert a new order
-        user_id = input("Enter Customer ID: ")
-        store_id = input("Enter Store ID: ")
+        # Validate Customer ID input.
+        while True:
+            user_id_input = input("Enter Customer ID: ").strip()
+            if not user_id_input:
+                print("Customer ID cannot be empty. Please try again.")
+                continue
+            try:
+                user_id = int(user_id_input)
+                if user_id <= 0:
+                    print("Customer ID must be a positive number.")
+                    continue
+            except ValueError:
+                print("Invalid Customer ID. Please enter an integer.")
+                continue
+            break
+
+        # Validate Store ID input.
+        while True:
+            store_id_input = input("Enter Store ID: ").strip()
+            if not store_id_input:
+                print("Store ID cannot be empty. Please try again.")
+                continue
+            try:
+                store_id = int(store_id_input)
+                if store_id <= 0:
+                    print("Store ID must be a positive number.")
+                    continue
+            except ValueError:
+                print("Invalid Store ID. Please enter an integer.")
+                continue
+            if not DBUtils.value_exists(conn, "stores", "store_id", store_id):
+                print(f"Store with ID {store_id} does not exist. Please try again.")
+                continue
+            break
+
         query = "INSERT INTO orders (user_id, order_timestamp, store_id) VALUES (%s, NOW(), %s)"
         cursor.execute(query, (user_id, store_id))
         order_id = cursor.lastrowid
@@ -123,16 +156,28 @@ def main():
         sys.exit(1)
 
     print("Welcome to the Supermarket Admin Application")
-    username = input("Enter your username: ")
-    password = input("Enter your password: ")
+    print("Press enter (with no text) to exit")
+    
+    # Loop until valid authentication is achieved.
+    while True:
+        username = input("Enter your username: ").strip()
+        if username == "":
+            print("Username was empty. Exiting")
+            sys.exit(0)
+        password = input("Enter your password: ").strip()
+        if password == "":
+            print("Password was empty. Exiting.")
+            sys.exit(0)
 
-    is_auth, is_admin = DBUtils.authenticate_user(conn, username, password)
-    if not is_auth:
-        print("Authentication failed. Please check your credentials.")
-        sys.exit(1)
-    if not is_admin:
-        print("This application is for admin users only.")
-        sys.exit(1)
+        is_auth, is_admin = DBUtils.authenticate_user(conn, username, password)
+        if not is_auth:
+            print("Username or password is incorrect. Please try again.")
+            continue
+        if not is_admin:
+            print("This application is for admin users only. Please try again.")
+            continue
+        break
+
     print(f"Welcome, {username}!")
 
     # Main loop for admin operations

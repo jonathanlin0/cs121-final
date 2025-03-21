@@ -86,16 +86,24 @@ def main():
         sys.exit(1)
 
     print("Welcome to the Supermarket Client Application")
-    username = input("Enter your username: ")
-    password = input("Enter your password: ")
+    print("Press enter (with no text) to exit")
+    
+    # Prompt for login; if either username or password is empty, exit.
+    while True:
+        username = input("Enter your username: ").strip()
+        if username == "":
+            print("Username was empty. Exiting")
+            sys.exit(0)
+        password = input("Enter your password: ").strip()
+        if password == "":
+            print("Password was empty. Exiting.")
+            sys.exit(0)
+        is_auth, is_admin = DBUtils.authenticate_user(conn, username, password)
+        if not is_auth:
+            print("Username or password is incorrect. Please try again.")
+            continue
+        break
 
-    is_auth, is_admin = DBUtils.authenticate_user(conn, username, password)
-    if not is_auth:
-        print("Authentication failed. Please check your credentials.")
-        sys.exit(1)
-    if is_admin:
-        print("This application is for client users only.")
-        sys.exit(1)
     print(f"Welcome, {username}!")
 
     # Main loop for client operations
