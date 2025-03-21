@@ -14,6 +14,7 @@ GRANT ALL PRIVILEGES ON final.* TO 'appadmin'@'localhost';
 
 GRANT SELECT ON final.* TO 'appclient'@'localhost';
 GRANT EXECUTE ON FUNCTION final.authenticate TO 'appclient'@'localhost';
+GRANT EXECUTE ON FUNCTION final.store_efficiency TO 'appclient'@'localhost';
 
 -- Ensure that the new privileges take effect immediately
 FLUSH PRIVILEGES;
