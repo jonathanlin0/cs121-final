@@ -1,4 +1,21 @@
--- Query: Calculate the efficiency of every store
+
+-- ADMIN QUERIES
+-- insert new order
+INSERT INTO orders (user_id, order_timestamp, store_id)
+VALUES (1, NOW(), 2);
+SET @order_id = LAST_INSERT_ID();
+CALL add_new_order(@order_id, '[1370, 1376]', '[15504, 21576]');
+
+-- update name of product
+UPDATE products
+SET product_name = 'Uncle Irohs Jasmine Dragon Tea'
+WHERE product_id = 3;
+
+
+
+-- CLIENT QUERIES
+
+-- TODO : explain queries more in detail
 SELECT 
     s.store_id, 
     s.city, 
@@ -6,31 +23,28 @@ SELECT
     (
         SELECT COUNT(*) 
         FROM products_in_order p
-        JOIN orders o ON p.order_id = o.order_id
+        NATURAL JOIN orders o
         WHERE o.store_id = s.store_id
     ) AS num_purchased_products
 FROM stores s
 ORDER BY supplier_efficiency DESC, num_purchased_products DESC;
 
 
-
-
--- Query: Reassign order 482516 to store 1
-CALL reassign_order_store(482516, 1);
-
-
--- -- Query: Customer Order History
--- SELECT o.order_id, o.order_timestamp, p.product_name
--- FROM orders o
--- JOIN products_in_order oi ON o.order_id = oi.order_id
--- JOIN products p ON oi.product_id = p.product_id
--- WHERE o.user_id = 7;
+-- look at the 
+SELECT product_name, COUNT(*) AS total_orders
+FROM orders o
+NATURAL JOIN products_in_order
+NATURAL JOIN products
+GROUP BY product_id
+ORDER BY total_orders DESC
+LIMIT 15;
 
 -- -- Query: Insert a New Order
--- INSERT INTO orders (order_id, user_id, order_timestamp, store_id) 
--- VALUES (12345, '7', NOW(), '2');
-
--- -- Query: Update a Product Name
--- UPDATE products 
--- SET product_name = 'Lego Monkey' 
--- WHERE product_id = '3423';
+SELECT aisle, COUNT(*) AS order_count
+FROM orders o
+NATURAL JOIN products_in_order
+NATURAL JOIN products
+NATURAL JOIN aisles
+GROUP BY aisle
+ORDER BY order_count DESC
+LIMIT 15;
