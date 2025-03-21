@@ -1,6 +1,6 @@
 # app_client.py
 import sys
-from db_utils import get_conn, authenticate_user
+from db_utils import DBUtils
 
 # ----- Client Functions (read-only queries) -----
 def client_query_popular_products(conn):
@@ -84,7 +84,7 @@ def quit_ui():
 # ----- Main Application Flow for Client -----
 def main():
     # Connect using the read-only account
-    conn = get_conn("appclient", "client")
+    conn = DBUtils.get_conn("appclient", "client")
     if not conn:
         print("Failed to connect to the database.")
         sys.exit(1)
@@ -93,7 +93,7 @@ def main():
     username = input("Enter your username: ")
     password = input("Enter your password: ")
 
-    is_auth, is_admin = authenticate_user(conn, username, password)
+    is_auth, is_admin = DBUtils.authenticate_user(conn, username, password)
     if not is_auth:
         print("Authentication failed. Please check your credentials.")
         sys.exit(1)

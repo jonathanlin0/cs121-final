@@ -1,54 +1,55 @@
 # app_admin.py
 import sys
-from db_utils import get_conn, authenticate_user
+import json
+from db_utils import DBUtils
 
 # ----- Admin Functions (update/insert queries) -----
+
 def admin_add_new_order(conn):
     cursor = conn.cursor()
-    
-    # Get basic order information
-    user_id = input("Enter Customer ID: ")
-    store_id = input("Enter Store ID: ")
-    query = "INSERT INTO orders (user_id, order_timestamp, store_id) VALUES (%s, NOW(), %s)"
-    cursor.execute(query, (user_id, store_id))
-    conn.commit()
-    order_id = cursor.lastrowid
-    print(f"New order created with Order ID: {order_id}")
-    
-    # Get the comma-separated product IDs, remove spaces, and split into a list
-    products_str = input("Enter a comma separated list of product IDs: ")
-    products_str = products_str.replace(" ", "")
-    if not products_str:
-        print("Error: No product IDs provided. Returning to main menu.")
-        cursor.close()
-        return
-    
-    product_ids = products_str.split(",")
-    
-    # Check if the list is empty (e.g., input was an empty string)
-    if len(product_ids) == 0:
-        print("Error: No product IDs provided. Returning to main menu.")
-        cursor.close()
-        return
-
-    # Validate each product_id
-    for pid in product_ids:
-        query = "SELECT COUNT(*) FROM products WHERE product_id = %s"
-        cursor.execute(query, (pid,))
-        result = cursor.fetchone()
-        if result[0] == 0:
-            print(f"Error: Product with product_id {pid} does not exist. Returning to main menu.")
-            cursor.close()
+    try:
+        # Get basic order information and insert a new order
+        user_id = input("Enter Customer ID: ")
+        store_id = input("Enter Store ID: ")
+        query = "INSERT INTO orders (user_id, order_timestamp, store_id) VALUES (%s, NOW(), %s)"
+        cursor.execute(query, (user_id, store_id))
+        order_id = cursor.lastrowid
+        print(f"New order created with Order ID: {order_id}")
+        
+        # Continuously ask for product and supplier pairs.
+        product_ids = []
+        supplier_ids = []
+        while True:
+            product_input = input("Enter product ID (or press Enter to finish): ").strip()
+            if product_input == "":
+                break
+            supplier_input = input("Enter supplier ID for this product: ").strip()
+            product_ids.append(int(product_input))
+            supplier_ids.append(int(supplier_input))
+        
+        if len(product_ids) == 0:
+            print("No products were entered. Rolling back order creation.")
+            conn.rollback()
             return
+        
+        # Convert lists to JSON strings.
+        products_json = json.dumps(product_ids)
+        suppliers_json = json.dumps(supplier_ids)
+        
+        # Call the stored procedure to insert the products for the order.
+        call_query = "CALL add_new_order(%s, %s, %s)"
+        cursor.execute(call_query, (order_id, products_json, suppliers_json))
+        
+        # Commit all changes together.
+        conn.commit()
+        print("Order and products inserted successfully within a single transaction.")
+    except Exception as e:
+        # Roll back any changes if an error occurs.
+        conn.rollback()
+        print("Transaction rolled back due to error:", e)
+    finally:
+        cursor.close()
 
-    # If all product IDs are valid, insert them into products_in_order
-    for pid in product_ids:
-        insert_query = "INSERT INTO products_in_order (order_id, product_id) VALUES (%s, %s)"
-        cursor.execute(insert_query, (order_id, pid))
-    conn.commit()
-    print("Products added to order successfully.")
-    
-    cursor.close()
 
 def admin_update_product(conn):
     cursor = conn.cursor()
@@ -85,7 +86,7 @@ def quit_ui():
 # ----- Main Application Flow for Admin -----
 def main():
     # Connect using the admin account
-    conn = get_conn("appadmin", "admin")
+    conn = DBUtils.get_conn("appadmin", "admin")
     if not conn:
         print("Failed to connect to the database.")
         sys.exit(1)
@@ -94,7 +95,7 @@ def main():
     username = input("Enter your username: ")
     password = input("Enter your password: ")
 
-    is_auth, is_admin = authenticate_user(conn, username, password)
+    is_auth, is_admin = DBUtils.authenticate_user(conn, username, password)
     if not is_auth:
         print("Authentication failed. Please check your credentials.")
         sys.exit(1)
