@@ -1,7 +1,9 @@
 -- drop tables if they exist to reset the database
 DROP TABLE IF EXISTS products_in_order;
-DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS stores;
+DROP TABLE IF EXISTS products;
+DROP TABLE IF EXISTS suppliers;
 DROP TABLE IF EXISTS aisles;
 DROP TABLE IF EXISTS departments;
 
@@ -47,13 +49,20 @@ CREATE TABLE orders (
     FOREIGN KEY (store_id) REFERENCES stores(store_id)
 );
 
+-- table for suppliers
+CREATE TABLE suppliers (
+    supplier_id INT PRIMARY KEY,
+    city VARCHAR(255) NOT NULL,
+    state CHAR(2) NOT NULL
+);
+
 -- table for relationship between orders and products
 CREATE TABLE products_in_order (
     order_id INT,
     product_id INT,
+    supplier_id INT,
     PRIMARY KEY (order_id, product_id),
-    FOREIGN KEY (order_id) REFERENCES orders(order_id) 
-        ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(product_id) 
-        ON DELETE CASCADE
+    FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
+    FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id) ON DELETE CASCADE
 );
