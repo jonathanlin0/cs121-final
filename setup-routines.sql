@@ -12,6 +12,7 @@ DROP TRIGGER IF EXISTS trg_after_insert_products_in_order;
 -- in a given store whose supplier is in the same city as
 -- the city divided by the total number of products sold at
 -- that same store
+-- If no products, then the default efficiency is 0.
 -- --------------------------------------------------------
 DELIMITER !
 
@@ -19,24 +20,24 @@ CREATE FUNCTION store_efficiency(p_store_id SMALLINT)
 RETURNS DECIMAL(5,2)
 DETERMINISTIC
 BEGIN
-    DECLARE totalItems INT;
+    DECLARE total_items INT;
     DECLARE efficientItems INT;
-    DECLARE storeCity VARCHAR(255);
-    DECLARE efficiencyRate DECIMAL(5,2);
+    DECLARE store_city VARCHAR(255);
+    DECLARE efficiency_rate DECIMAL(5,2);
 
     -- Get the city for the given store
-    SELECT city INTO storeCity
+    SELECT city INTO store_city
     FROM stores
     WHERE store_id = p_store_id;
 
     -- Count total items for orders belonging to this store
-    SELECT COUNT(*) INTO totalItems
+    SELECT COUNT(*) INTO total_items
     FROM products_in_order p
     JOIN orders o ON p.order_id = o.order_id
     WHERE o.store_id = p_store_id;
 
-    IF totalItems = 0 THEN
-        SET efficiencyRate = 1.0;
+    IF total_items = 0 THEN
+        SET efficiency_rate = 0.0;
     ELSE
         -- Count items where the supplier's city matches the store's city
         SELECT COUNT(*) INTO efficientItems
@@ -44,12 +45,12 @@ BEGIN
         JOIN orders o ON p.order_id = o.order_id
         JOIN suppliers sup ON p.supplier_id = sup.supplier_id
         WHERE o.store_id = p_store_id
-          AND sup.city = storeCity;
+          AND sup.city = store_city;
 
-        SET efficiencyRate = efficientItems / totalItems;
+        SET efficiency_rate = efficientItems / total_items;
     END IF;
 
-    RETURN efficiencyRate;
+    RETURN efficiency_rate;
 END !
 
 DELIMITER ;
@@ -58,22 +59,35 @@ DELIMITER ;
 
 -- --------------------------------------------------------
 -- Procedure: reassign_order_store
--- This procedure reassigns the store for a given order.
+-- This procedure inserts values 
 -- --------------------------------------------------------
 
 DELIMITER !
 
-CREATE PROCEDURE reassign_order_store (
+CREATE PROCEDURE add_new_order(
     IN p_order_id INT,
-    IN p_new_store_id SMALLINT
+    IN p_products JSON,
+    IN p_suppliers JSON
 )
 BEGIN
-    UPDATE orders
-    SET store_id = p_new_store_id
-    WHERE order_id = p_order_id;
+    DECLARE i INT DEFAULT 0;
+    DECLARE len INT;
+
+    SET len = JSON_LENGTH(p_products);
+    
+    WHILE i < len DO
+        INSERT INTO products_in_order (order_id, product_id, supplier_id)
+        VALUES (
+            p_order_id, 
+            CAST(JSON_EXTRACT(p_products, CONCAT('$[', i, ']')) AS UNSIGNED), 
+            CAST(JSON_EXTRACT(p_suppliers, CONCAT('$[', i, ']')) AS UNSIGNED)
+        );
+        SET i = i + 1;
+    END WHILE;
 END !
 
 DELIMITER ;
+
 
 -- --------------------------------------------------------
 -- Trigger: trg_products_in_order_after_insert
@@ -89,6 +103,18 @@ CREATE TABLE IF NOT EXISTS did_reorder (
     is_reordered TINYINT,
     PRIMARY KEY (user_id, product_id)
 );
+
+-- Populate the did_reorder table
+INSERT INTO did_reorder (user_id, product_id, is_reordered)
+SELECT 
+    o.user_id, 
+    p.product_id, 
+    CASE WHEN COUNT(*) > 1 THEN 1 ELSE 0 END AS is_reordered
+FROM products_in_order p
+JOIN orders o 
+    ON p.order_id = o.order_id
+GROUP BY o.user_id, p.product_id
+ORDER BY MIN(o.order_timestamp) ASC;
 
 
 -- Drop the trigger if it exists to avoid errors during creation.
