@@ -61,4 +61,51 @@ class DBUtils:
         exists = cursor.fetchone()[0]
         cursor.close()
         return bool(exists)
+    
+    @staticmethod
+    def print_formatted_table(cursor, rows, col_widths, headers=None):
+        """
+        Format and print a table of results using the specified column widths.
+
+        Args:
+            cursor: The cursor object after executing the query.
+            rows (list of tuples): The rows returned from a SQL query.
+            col_widths (list of int): A list of integers specifying the width of each column.
+            headers (list of str, optional): The column headers to print. If not provided,
+                headers are extracted from the cursor's description.
+
+        Behavior:
+            - If headers are not provided, extracts column names from the cursor's description.
+            - If a value's string representation is longer than the allowed width, it is truncated.
+            - Two spaces are added between columns for padding.
+            - If no rows are provided, prints a message indicating no results.
+        """
+        if headers is None:
+            headers = [col[0] for col in cursor.description]
+        
+        if not rows:
+            print("No results found for the requested task.")
+            return
+
+        # Print the header row with two spaces between each column.
+        header_line = ""
+        for idx, header in enumerate(headers):
+            width = col_widths[idx] if idx < len(col_widths) else 10
+            truncated_header = str(header)[:width]
+            header_line += truncated_header.ljust(width) + "  "
+        print(header_line)
+        print("-" * len(header_line))
+
+        # Print each row, truncating values if they exceed the allowed width.
+        for row in rows:
+            formatted_line = ""
+            for idx, col in enumerate(row):
+                width = col_widths[idx] if idx < len(col_widths) else 10
+                col_str = str(col)
+                if len(col_str) > width:
+                    col_str = col_str[:width]
+                formatted_line += col_str.ljust(width) + "  "
+            print(formatted_line)
+
+
 

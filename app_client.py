@@ -3,6 +3,30 @@ import sys
 from db_utils import DBUtils
 
 # ----- Client Functions (read-only queries) -----
+def client_view_store_efficiency(conn):
+    cursor = conn.cursor()
+    query = """
+    SELECT 
+        s.store_id, 
+        s.city, 
+        store_efficiency(s.store_id) AS supplier_efficiency, 
+        (
+            SELECT COUNT(*) 
+            FROM products_in_order p
+            NATURAL JOIN orders o
+            WHERE o.store_id = s.store_id
+        ) AS num_purchased_products
+    FROM stores s
+    ORDER BY supplier_efficiency DESC, num_purchased_products DESC;
+    """
+    cursor.execute(query)
+    results = cursor.fetchall()
+    
+    print("\nStore Efficiency Report:")
+    # Pass the cursor so the function extracts headers automatically.
+    DBUtils.print_formatted_table(cursor, results, [10, 20, 20, 20])
+    cursor.close()
+
 def client_query_popular_products(conn):
     cursor = conn.cursor()
     query = """
@@ -18,8 +42,7 @@ def client_query_popular_products(conn):
     results = cursor.fetchall()
     
     print("\nTop 10 Popular Products:")
-    for product, count in results:
-        print(f"{product}: {count} orders")
+    DBUtils.print_formatted_table(cursor, results, [25, 10])
     cursor.close()
 
 def client_query_popular_aisles(conn):
@@ -38,42 +61,15 @@ def client_query_popular_aisles(conn):
     results = cursor.fetchall()
     
     print("\nTop 10 Popular Aisles:")
-    for aisle, count in results:
-        print(f"{aisle}: {count} orders")
-    cursor.close()
-
-def client_view_customer_order_history(conn):
-    try:
-        customer_id = int(input("Enter customer ID: "))
-    except ValueError:
-        print("Invalid customer ID.")
-        return
-
-    cursor = conn.cursor()
-    query = """
-        SELECT order_id, order_timestamp, product_name
-        FROM orders
-        NATURAL JOIN products_in_order
-        NATURAL JOIN products
-        WHERE user_id = %s;
-    """
-    cursor.execute(query, (customer_id,))
-    results = cursor.fetchall()
-
-    if not results:
-        print("\nNo order history found for this customer.")
-    else:
-        print("\nOrder History:")
-        for order_id, order_timestamp, product in results:
-            print(f"Order {order_id} (at {order_timestamp}): {product}")
+    DBUtils.print_formatted_table(cursor, results, [30, 10])
     cursor.close()
 
 # ----- UI Helper -----
 def show_client_options():
     print("\nClient Options:")
-    print("1 - Query popular products")
-    print("2 - Query popular aisles")
-    print("3 - View customer order history")
+    print("1 - View store efficiency")
+    print("2 - Query popular products")
+    print("3 - Query popular aisles")
     print("q - Quit")
     return input("Enter an option: ").lower().strip()
 
@@ -106,11 +102,11 @@ def main():
     while True:
         option = show_client_options()
         if option == "1":
-            client_query_popular_products(conn)
+            client_view_store_efficiency(conn)
         elif option == "2":
-            client_query_popular_aisles(conn)
+            client_query_popular_products(conn)
         elif option == "3":
-            client_view_customer_order_history(conn)
+            client_query_popular_aisles(conn)
         elif option == "q":
             quit_ui()
         else:
