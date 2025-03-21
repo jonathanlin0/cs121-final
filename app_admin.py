@@ -5,6 +5,7 @@ from db_utils import DBUtils
 
 # ----- Admin Functions (update/insert queries) -----
 
+
 def admin_add_new_order(conn):
     cursor = conn.cursor()
     try:
@@ -23,9 +24,29 @@ def admin_add_new_order(conn):
             product_input = input("Enter product ID (or press Enter to finish): ").strip()
             if product_input == "":
                 break
+            try:
+                product_id = int(product_input)
+            except ValueError:
+                print("Invalid product ID. Please enter an integer.")
+                continue
+            # Validate product_id using value_exists
+            if not DBUtils.value_exists(conn, "products", "product_id", product_id):
+                print(f"Product with ID {product_id} does not exist. Please try again.")
+                continue
+
             supplier_input = input("Enter supplier ID for this product: ").strip()
-            product_ids.append(int(product_input))
-            supplier_ids.append(int(supplier_input))
+            try:
+                supplier_id = int(supplier_input)
+            except ValueError:
+                print("Invalid supplier ID. Please enter an integer.")
+                continue
+            # Validate supplier_id using value_exists
+            if not DBUtils.value_exists(conn, "suppliers", "supplier_id", supplier_id):
+                print(f"Supplier with ID {supplier_id} does not exist. Please try again.")
+                continue
+
+            product_ids.append(product_id)
+            supplier_ids.append(supplier_id)
         
         if len(product_ids) == 0:
             print("No products were entered. Rolling back order creation.")
@@ -44,31 +65,41 @@ def admin_add_new_order(conn):
         conn.commit()
         print("Order and products inserted successfully within a single transaction.")
     except Exception as e:
-        # Roll back any changes if an error occurs.
         conn.rollback()
         print("Transaction rolled back due to error:", e)
     finally:
         cursor.close()
 
-
 def admin_update_product(conn):
+    # Loop until a valid, nonempty product_id is entered.
+    while True:
+        product_input = input("Enter Product ID to update: ").strip()
+        if not product_input:
+            print("Product ID cannot be empty. Please try again.")
+            continue
+        try:
+            product_id = int(product_input)
+        except ValueError:
+            print("Invalid product ID. Please enter an integer.")
+            continue
+        if DBUtils.value_exists(conn, "products", "product_id", product_id):
+            break
+        else:
+            print("No product found with the given Product ID. Please try again.")
+    
+    # Loop until a nonempty new product name is provided.
+    while True:
+        new_name = input("Enter new product name: ").strip()
+        if new_name:
+            break
+        else:
+            print("Product name cannot be empty. Please try again.")
+    
     cursor = conn.cursor()
-    product_id = input("Enter Product ID to update: ")
-    
-    # Check if the product exists
-    query = "SELECT COUNT(*) FROM products WHERE product_id = %s"
-    cursor.execute(query, (product_id,))
-    result = cursor.fetchone()
-    
-    if result[0] == 0:
-        print("No product found with the given Product ID.")
-    else:
-        new_name = input("Enter new product name: ")
-        update_query = "UPDATE products SET product_name = %s WHERE product_id = %s"
-        cursor.execute(update_query, (new_name, product_id))
-        conn.commit()
-        print("Product updated successfully.")
-    
+    update_query = "UPDATE products SET product_name = %s WHERE product_id = %s"
+    cursor.execute(update_query, (new_name, product_id))
+    conn.commit()
+    print("Product updated successfully.")
     cursor.close()
 
 # ----- UI Helper -----
