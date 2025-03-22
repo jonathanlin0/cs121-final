@@ -24,7 +24,7 @@ def client_view_store_efficiency(conn):
     
     print("\nStore Efficiency Report:")
     # Pass the cursor so the function extracts headers automatically.
-    DBUtils.print_formatted_table(cursor, results, [10, 20, 20, 20])
+    DBUtils.print_formatted_table(cursor, results, [15, 20, 20, 25])
     cursor.close()
 
 def client_query_popular_products(conn):
@@ -34,15 +34,15 @@ def client_query_popular_products(conn):
         FROM orders o
         NATURAL JOIN products_in_order
         NATURAL JOIN products
-        GROUP BY product_id, product_name
+        GROUP BY product_id
         ORDER BY total_orders DESC
-        LIMIT 10;
+        LIMIT 15;
     """
     cursor.execute(query)
     results = cursor.fetchall()
     
-    print("\nTop 10 Popular Products:")
-    DBUtils.print_formatted_table(cursor, results, [25, 10])
+    print("\nTop 15 Popular Products:")
+    DBUtils.print_formatted_table(cursor, results, [25, 15])
     cursor.close()
 
 def client_query_popular_aisles(conn):
@@ -55,13 +55,13 @@ def client_query_popular_aisles(conn):
         NATURAL JOIN aisles
         GROUP BY aisle
         ORDER BY order_count DESC
-        LIMIT 10;
+        LIMIT 15;
     """
     cursor.execute(query)
     results = cursor.fetchall()
     
-    print("\nTop 10 Popular Aisles:")
-    DBUtils.print_formatted_table(cursor, results, [30, 10])
+    print("\nTop 15 Popular Aisles:")
+    DBUtils.print_formatted_table(cursor, results, [30, 15])
     cursor.close()
 
 # ----- UI Helper -----
@@ -74,7 +74,7 @@ def show_client_options():
     return input("Enter an option: ").lower().strip()
 
 def quit_ui():
-    print("Goodbye!")
+    print("Goodbye! Good luck with your future data analysis!")
     sys.exit(0)
 
 # ----- Main Application Flow for Client -----

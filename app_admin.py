@@ -144,7 +144,7 @@ def show_admin_options():
     return input("Enter an option: ").lower().strip()
 
 def quit_ui():
-    print("Goodbye!")
+    print("Goodbye! I hope you sell more avocados!")
     sys.exit(0)
 
 # ----- Main Application Flow for Admin -----
@@ -158,7 +158,7 @@ def main():
     print("Welcome to the Supermarket Admin Application")
     print("Press enter (with no text) to exit")
     
-    # Loop until valid authentication is achieved.
+    # Prompt for login; if either username or password is empty, exit.
     while True:
         username = input("Enter your username: ").strip()
         if username == "":

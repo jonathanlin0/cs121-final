@@ -4,7 +4,6 @@ DROP PROCEDURE IF EXISTS reassign_order_store;
 DROP TRIGGER IF EXISTS trg_after_insert_products_in_order;
 
 
-
 -- --------------------------------------------------------
 -- UDF: avg_order_interval
 -- This UDF calculates the supplier efficiency of a given store.
@@ -33,19 +32,21 @@ BEGIN
     -- Count total items for orders belonging to this store
     SELECT COUNT(*) INTO total_items
     FROM products_in_order p
-    JOIN orders o ON p.order_id = o.order_id
+    NATURAL JOIN orders o
     WHERE o.store_id = p_store_id;
 
     IF total_items = 0 THEN
         SET efficiency_rate = 0.0;
     ELSE
         -- Count items where the supplier's city matches the store's city
+        -- don't consider state since for now, we only have california cities
+        -- simply add another condition for states if the chain goes national
+        -- and opens markets in other states
         SELECT COUNT(*) INTO efficientItems
         FROM products_in_order p
-        JOIN orders o ON p.order_id = o.order_id
-        JOIN suppliers sup ON p.supplier_id = sup.supplier_id
-        WHERE o.store_id = p_store_id
-          AND sup.city = store_city;
+        NATURAL JOIN orders o
+        NATURAL JOIN suppliers sup
+        WHERE o.store_id = p_store_id AND sup.city = store_city;
 
         SET efficiency_rate = efficientItems / total_items;
     END IF;

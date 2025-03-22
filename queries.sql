@@ -1,6 +1,7 @@
 
 -- ADMIN QUERIES
 -- insert new order
+
 INSERT INTO orders (user_id, order_timestamp, store_id)
 VALUES (1, NOW(), 2);
 SET @order_id = LAST_INSERT_ID();
@@ -16,6 +17,7 @@ WHERE product_id = 3;
 -- CLIENT QUERIES
 
 -- TODO : explain queries more in detail
+
 SELECT 
     s.store_id, 
     s.city, 

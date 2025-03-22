@@ -30,11 +30,12 @@ CREATE TABLE products (
 );
 
 -- table for stores
+-- assume that online orders are routed to the nearest store to the delivery location
+-- and counts for that store's sales.
 CREATE TABLE stores (
-    -- assume number of stores will never be above 10,000
+    -- assume number of stores will never be a very large number
+    -- for example, there's only 10,000 walmart stores globally
     store_id SMALLINT PRIMARY KEY,
-    -- assume that online orders are routed to the nearest store to the delivery location
-    -- and counts for that store's sales.
     city VARCHAR(255) NOT NULL,
     -- 2 letter state code
     state CHAR(2) NOT NULL
@@ -53,6 +54,7 @@ CREATE TABLE orders (
 CREATE TABLE suppliers (
     supplier_id INT PRIMARY KEY,
     city VARCHAR(255) NOT NULL,
+    -- 2 letter state code
     state CHAR(2) NOT NULL
 );
 
@@ -60,9 +62,13 @@ CREATE TABLE suppliers (
 CREATE TABLE products_in_order (
     order_id INT,
     product_id INT,
-    supplier_id INT,
+    -- supplier for that product related to that order
+    -- assume a supplier always exists
+    supplier_id INT NOT NULL,
     PRIMARY KEY (order_id, product_id),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE,
     FOREIGN KEY (supplier_id) REFERENCES suppliers(supplier_id) ON DELETE CASCADE
 );
+
+CREATE INDEX idx_suppliers_city ON suppliers (city);
