@@ -103,3 +103,7 @@ If at any point during testing the server freezes for any reason, simply restart
 ```bash
 sudo systemctl restart mysql
 ```
+
+## ER Diagram
+For those curious about our ER diagram setup, here it is:
+![ER diagram picture](figs/ER_diagram.png)
