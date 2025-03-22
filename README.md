@@ -3,6 +3,9 @@
 ## Overview
 This application helps supermarket analysts and managers optimize inventory and track sales trends. It provides both a client-facing interface for data analysis and an admin interface for managing products and order updates.
 
+Github Repository link: [https://github.com/jonathanlin0/cs121-final](https://github.com/jonathanlin0/cs121-final)
+
+
 ## Prerequisites
 Before running the application, ensure you have the following:
 - **Python 3.10** (This system was only tested on Python 3.10, and functionality is not guaranteed on other versions.)
