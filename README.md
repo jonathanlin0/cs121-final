@@ -1,4 +1,4 @@
-# Supermarket Data Analysis and Inventory Management System
+# Supermarket Data Analysis System
 
 ## Overview
 This application helps supermarket analysts and managers optimize inventory and track sales trends. It provides both a client-facing interface for data analysis and an admin interface for managing products and order updates.
