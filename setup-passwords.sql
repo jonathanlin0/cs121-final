@@ -1,3 +1,5 @@
+-- copy pasted from A6, except for a new attribute for if they're an admin or not
+
 -- This function generates a specified number of characters for using as a
 -- salt in passwords.
 DELIMITER !
@@ -102,6 +104,8 @@ DELIMITER ;
 
 -- Add at least two users into your user_info table so that when we run this file,
 -- we will have examples users in the database.
+-- alice is the admin (store manager)
+-- bob is the client (data analyst)
 CALL sp_add_user('alice', 'password', TRUE);
 CALL sp_add_user('bob', 'password', FALSE);
 

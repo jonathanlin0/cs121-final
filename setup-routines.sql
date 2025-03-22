@@ -3,6 +3,12 @@ DROP FUNCTION IF EXISTS store_efficiency;
 DROP PROCEDURE IF EXISTS reassign_order_store;
 DROP TRIGGER IF EXISTS trg_after_insert_products_in_order;
 
+-- NOTE: the data is set up such that suppliers and stores
+-- are only in CA. Thus, some of the code below may not
+-- check for state equivalence. The new case can easily
+-- be adapted for multi-state chains by adding an equivalence
+-- check for states.
+
 
 -- --------------------------------------------------------
 -- UDF: avg_order_interval
@@ -10,7 +16,7 @@ DROP TRIGGER IF EXISTS trg_after_insert_products_in_order;
 -- This is calculated by the total number of products sold
 -- in a given store whose supplier is in the same city as
 -- the city divided by the total number of products sold at
--- that same store
+-- that same store.
 -- If no products, then the default efficiency is 0.
 -- --------------------------------------------------------
 DELIMITER !
@@ -59,8 +65,9 @@ DELIMITER ;
 
 
 -- --------------------------------------------------------
--- Procedure: reassign_order_store
--- This procedure inserts values 
+-- Procedure: add_new_order
+-- This procedure adds the products associated with a given
+-- (new) order into the products_in_order table. 
 -- --------------------------------------------------------
 
 DELIMITER !
@@ -131,25 +138,22 @@ BEGIN
     DECLARE v_count INT DEFAULT 0;
     
     -- Retrieve the user_id from the orders table for the inserted order.
-    SELECT user_id 
-      INTO v_user_id
-      FROM orders
-     WHERE order_id = NEW.order_id
-     LIMIT 1;
+    SELECT user_id INTO v_user_id FROM orders
+      WHERE order_id = NEW.order_id
+      LIMIT 1;
     
     -- Check if a did_reorder record already exists for this user and product.
-    SELECT COUNT(*) 
-      INTO v_count
-      FROM did_reorder
-     WHERE user_id = v_user_id 
-       AND product_id = NEW.product_id;
+    SELECT COUNT(*) INTO v_count
+        FROM did_reorder
+        WHERE user_id = v_user_id 
+        AND product_id = NEW.product_id;
     
     IF v_count > 0 THEN
         -- If the record exists, update is_reordered to 1.
         UPDATE did_reorder
-           SET is_reordered = 1
+            SET is_reordered = 1
          WHERE user_id = v_user_id 
-           AND product_id = NEW.product_id;
+            AND product_id = NEW.product_id;
     ELSE
         -- Otherwise, insert a new record with is_reordered set to 0.
         INSERT INTO did_reorder (user_id, product_id, is_reordered)

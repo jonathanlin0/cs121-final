@@ -1,25 +1,18 @@
-
--- ADMIN QUERIES
--- insert new order
-
-INSERT INTO orders (user_id, order_timestamp, store_id)
-VALUES (1, NOW(), 2);
-SET @order_id = LAST_INSERT_ID();
-CALL add_new_order(@order_id, '[1370, 1376]', '[15504, 21576]');
-
 -- update name of product
+-- we assume the product where product_id = 3 exists.
+-- the python code that utilizes this logic checks if
+-- a given product_id exists for the product you want
+-- to change exists before executing any sql.
+-- This query is used in our RA section of reflection.pdf
 UPDATE products
 SET product_name = 'Uncle Irohs Jasmine Dragon Tea'
 WHERE product_id = 3;
 
 
-
--- CLIENT QUERIES
-
--- TODO : explain queries more in detail
-
+-- This function calculates the supplier efficiency for
+-- all the stores and the number of products sold from
+-- each store.
 SELECT 
-    s.store_id, 
     s.city, 
     store_efficiency(s.store_id) AS supplier_efficiency, 
     (
@@ -32,7 +25,9 @@ FROM stores s
 ORDER BY supplier_efficiency DESC, num_purchased_products DESC;
 
 
--- look at the 
+-- View the top performing products.
+-- Similar to the next query, just using product_name.
+-- This query is used in our RA section of reflection.pdf
 SELECT product_name, COUNT(*) AS total_orders
 FROM orders o
 NATURAL JOIN products_in_order
@@ -41,7 +36,9 @@ GROUP BY product_id
 ORDER BY total_orders DESC
 LIMIT 15;
 
--- -- Query: Insert a New Order
+-- View the top performing aisles.
+-- Similar to the previous query, just using aisles.
+-- This query is used in our RA section of reflection.pdf
 SELECT aisle, COUNT(*) AS order_count
 FROM orders o
 NATURAL JOIN products_in_order
@@ -49,4 +46,4 @@ NATURAL JOIN products
 NATURAL JOIN aisles
 GROUP BY aisle
 ORDER BY order_count DESC
-LIMIT 15;
+LIMIT 10;

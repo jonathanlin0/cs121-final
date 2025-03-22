@@ -1,5 +1,6 @@
 # db_utils.py
 import mysql.connector
+from typing import List, Tuple, Any
 from mysql.connector import Error
 
 class DBUtils:
@@ -42,7 +43,7 @@ class DBUtils:
         return (auth_result == 1, bool(is_admin))
     
     @staticmethod
-    def value_exists(conn, table_name, column_name, value):
+    def value_exists(conn, table_name: str, column_name: str, value: str):
         """
         Check if a given value exists in the specified column of a table.
         
@@ -63,7 +64,7 @@ class DBUtils:
         return bool(exists)
     
     @staticmethod
-    def print_formatted_table(cursor, rows, col_widths, headers=None):
+    def print_formatted_table(cursor, rows : List[Tuple[Any, ...]], col_widths: List[int], headers=None):
         """
         Format and print a table of results using the specified column widths.
 
@@ -74,11 +75,10 @@ class DBUtils:
             headers (list of str, optional): The column headers to print. If not provided,
                 headers are extracted from the cursor's description.
 
-        Behavior:
-            - If headers are not provided, extracts column names from the cursor's description.
-            - If a value's string representation is longer than the allowed width, it is truncated.
-            - Two spaces are added between columns for padding.
-            - If no rows are provided, prints a message indicating no results.
+        If headers are not provided, extracts column names from the cursor's description.
+        If a value's string representation is longer than the allowed width, it is truncated.
+        Two spaces are added between columns for padding.
+        If no rows are provided, prints a message indicating no results.
         """
         if headers is None:
             headers = [col[0] for col in cursor.description]
@@ -106,6 +106,3 @@ class DBUtils:
                     col_str = col_str[:width]
                 formatted_line += col_str.ljust(width) + "  "
             print(formatted_line)
-
-
-

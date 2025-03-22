@@ -7,22 +7,25 @@ from db_utils import DBUtils
 
 
 def admin_add_new_order(conn):
+    """
+    Allows the user to insert new orders.
+    """
     cursor = conn.cursor()
     try:
         # Get basic order information and insert a new order
-        # Validate Customer ID input.
+        # Validate User ID input.
         while True:
-            user_id_input = input("Enter Customer ID: ").strip()
+            user_id_input = input("Enter User ID: ").strip()
             if not user_id_input:
-                print("Customer ID cannot be empty. Please try again.")
+                print("User ID cannot be empty. Please try again.")
                 continue
             try:
                 user_id = int(user_id_input)
                 if user_id <= 0:
-                    print("Customer ID must be a positive number.")
+                    print("User ID must be a positive number.")
                     continue
             except ValueError:
-                print("Invalid Customer ID. Please enter an integer.")
+                print("Invalid User ID. Please enter an integer.")
                 continue
             break
 
@@ -50,7 +53,7 @@ def admin_add_new_order(conn):
         order_id = cursor.lastrowid
         print(f"New order created with Order ID: {order_id}")
         
-        # Continuously ask for product and supplier pairs.
+        # Continuously ask for product and supplier pairs until the user doesn't want to anymore
         product_ids = []
         supplier_ids = []
         while True:
@@ -86,7 +89,7 @@ def admin_add_new_order(conn):
             conn.rollback()
             return
         
-        # Convert lists to JSON strings.
+        # Convert lists to JSON strings to pass to the SQL query
         products_json = json.dumps(product_ids)
         suppliers_json = json.dumps(supplier_ids)
         
@@ -104,6 +107,9 @@ def admin_add_new_order(conn):
         cursor.close()
 
 def admin_update_product(conn):
+    """
+    Allows the user to update the name of a product.
+    """
     # Loop until a valid, nonempty product_id is entered.
     while True:
         product_input = input("Enter Product ID to update: ").strip()
@@ -123,6 +129,7 @@ def admin_update_product(conn):
     # Loop until a nonempty new product name is provided.
     while True:
         new_name = input("Enter new product name: ").strip()
+        # new_name returns False if it's empty
         if new_name:
             break
         else:
@@ -144,6 +151,9 @@ def show_admin_options():
     return input("Enter an option: ").lower().strip()
 
 def quit_ui():
+    """
+    This function is called when exiting the program normally.
+    """
     print("Goodbye! I hope you sell more avocados!")
     sys.exit(0)
 

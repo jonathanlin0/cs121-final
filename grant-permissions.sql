@@ -11,7 +11,7 @@ CREATE USER 'appclient'@'localhost' IDENTIFIED BY 'client';
 -- Grant all privileges on the final to the admin user
 GRANT ALL PRIVILEGES ON final.* TO 'appadmin'@'localhost';
 
-
+-- Grant SELECT and certain functions access to client user
 GRANT SELECT ON final.* TO 'appclient'@'localhost';
 GRANT EXECUTE ON FUNCTION final.authenticate TO 'appclient'@'localhost';
 GRANT EXECUTE ON FUNCTION final.store_efficiency TO 'appclient'@'localhost';

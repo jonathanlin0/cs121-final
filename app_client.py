@@ -4,10 +4,14 @@ from db_utils import DBUtils
 
 # ----- Client Functions (read-only queries) -----
 def client_view_store_efficiency(conn):
+    """
+    Allows the user to view the store efficiencies
+    """
+    # we don't show store_id because it's an internal representation
+    # of the DB. also, we assume that there's only 1 store per city.
     cursor = conn.cursor()
     query = """
     SELECT 
-        s.store_id, 
         s.city, 
         store_efficiency(s.store_id) AS supplier_efficiency, 
         (
@@ -24,10 +28,13 @@ def client_view_store_efficiency(conn):
     
     print("\nStore Efficiency Report:")
     # Pass the cursor so the function extracts headers automatically.
-    DBUtils.print_formatted_table(cursor, results, [15, 20, 20, 25])
+    DBUtils.print_formatted_table(cursor, results, [20, 20, 25])
     cursor.close()
 
 def client_query_popular_products(conn):
+    """
+    Allows the user to view the 15 most popular products.
+    """
     cursor = conn.cursor()
     query = """
         SELECT product_name, COUNT(*) AS total_orders
@@ -46,15 +53,19 @@ def client_query_popular_products(conn):
     cursor.close()
 
 def client_query_popular_aisles(conn):
+    """
+    Allows the user to view the 15 most popular aisles, measured
+    by number of products sold.
+    """
     cursor = conn.cursor()
     query = """
-        SELECT aisle, COUNT(*) AS order_count
+        SELECT aisle, COUNT(*) AS total_orders
         FROM orders o
         NATURAL JOIN products_in_order
         NATURAL JOIN products
         NATURAL JOIN aisles
         GROUP BY aisle
-        ORDER BY order_count DESC
+        ORDER BY total_orders DESC
         LIMIT 15;
     """
     cursor.execute(query)
@@ -74,7 +85,10 @@ def show_client_options():
     return input("Enter an option: ").lower().strip()
 
 def quit_ui():
-    print("Goodbye! Good luck with your future data analysis!")
+    """
+    This function is called when exiting the program normally.
+    """
+    print("Goodbye! I hope you sell more avocados!")
     sys.exit(0)
 
 # ----- Main Application Flow for Client -----
@@ -82,7 +96,7 @@ def main():
     # Connect using the read-only account
     conn = DBUtils.get_conn("appclient", "client")
     if not conn:
-        print("Failed to connect to the database.")
+        print("Failed to start application. Please contact systems administrator.")
         sys.exit(1)
 
     print("Welcome to the Supermarket Client Application")
