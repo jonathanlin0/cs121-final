@@ -106,4 +106,4 @@ sudo systemctl restart mysql
 
 ## ER Diagram
 For those curious about our ER diagram setup, here it is:
-![ER diagram picture](figs/ER_diagram.png)
+![ER diagram picture. This will not work for Codepost, since directories don't exist in Codepost. Please reference the Github repository page (link in link-to-data.txt) to see the figure.](figs/ER_diagram.png)
